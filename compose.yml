@@ -1,0 +1,80 @@
+name: todo-backend
+
+services:
+# nodejs server configuration
+  server:
+    image: node:26-alpine
+    container_name: todo_server
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /app
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    command: sh -c "tail -f /dev/null"
+    networks:
+      - todo_net
+    depends_on:
+      database:
+        condition: service_healthy
+
+# mongodb server configuration
+  database:
+    image: mongo:latest
+    container_name: todo_db
+    restart: unless-stopped
+
+    ports:
+      - "27017:27017"
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: blue
+      MONGO_INITDB_ROOT_PASSWORD: adminfjsl90vvv
+
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo:/etc/mongo:ro,Z
+
+    networks:
+      - todo_net
+
+    command: >
+      mongod
+      --replSet rs0
+      --auth
+      --keyFile /etc/mongo/mongo-keyfile
+      --bind_ip_all
+
+    healthcheck:
+      test: 'mongosh --port 27017 --eval "db.runCommand({ping: 1})" --quiet || exit 1'
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+# redis db server configuration
+  redis:
+    image: redis:7-alpine
+    container_name: todo_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass todo_redis_db_2708
+    volumes:
+      - redis_data:/data
+    networks:
+      - todo_net
+
+
+volumes:
+  mongodb_data:
+    name: todo_mongodb_data
+  redis_data:
+
+networks:
+  todo_net:
+    driver: bridge

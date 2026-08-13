@@ -1,0 +1,22 @@
+--- db-design ---
+collections / entities : 
+1. users 
+2. lists 
+3. tasks
+
+1. user : 
+_id
+email
+password
+
+2. list :
+_id
+list_name
+
+3. task : 
+_id
+task_name 
+task_status
+
+--- features ---
+
