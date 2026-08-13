@@ -63,7 +63,7 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
-    command: redis-server --appendonly yes --requirepass todo_redis_db_2708
+    command: redis-server --appendonly yes --requirepass redis_db_password@2708
     volumes:
       - redis_data:/data
     networks:
