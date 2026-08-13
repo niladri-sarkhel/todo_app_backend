@@ -20,3 +20,13 @@ task_status
 
 --- features ---
 
+* account management : 
+(email based otp)
+signup
+login
+logout
+delete-account
+forget password
+reset password
+update email
+update profile

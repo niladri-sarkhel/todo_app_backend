@@ -2,7 +2,7 @@ name: todo-backend
 
 services:
 # nodejs server configuration
-  server:
+  nodejs:
     image: node:26-alpine
     container_name: todo_server
     user: "${UID:-1000}:${GID:-1000}"
@@ -19,11 +19,11 @@ services:
     networks:
       - todo_net
     depends_on:
-      database:
+      mongodb:
         condition: service_healthy
 
 # mongodb server configuration
-  database:
+  mongodb:
     image: mongo:latest
     container_name: todo_db
     restart: unless-stopped
