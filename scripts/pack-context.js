@@ -2,88 +2,135 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Get directory name in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Save output directly inside the scripts/ folder
-const OUTPUT_FILE = path.join(__dirname, "project_context.txt");
 
 // Project root directory (one level up from scripts/)
 const ROOT_DIR = path.resolve(__dirname, "..");
 
-// Directories and top-level files to include
-const TARGET_DIRS = ["src", "scripts", "dummy", "tests", ".github"];
-const TARGET_ROOT_FILES = [
-  "index.js",
-  "package.json",
-  "README.md",
-  "Dockerfile",
-  "Dockerfile.dev",
-  "compose.yml",
-  ".env.example",
-  ".gitignore",
-  ".dockerignore",
-];
+// Save output directly inside the scripts/ folder
+const OUTPUT_FILE = path.join(__dirname, "project_context.txt");
 
-// Supported text extensions
-const TEXT_EXTENSIONS = new Set([
-  ".js",
-  ".jsx",
-  ".ts",
-  ".tsx",
-  ".css",
-  ".scss",
-  ".json",
-  ".html",
-  ".svg",
-  ".md",
-  ".yml",
-  ".yaml",
-  ".env",
-  ".example",
-  ".sh",
-  ".txt",
-]);
-
-const IGNORE_FILES = new Set([
+// Files/folders to strictly ignore
+const IGNORE_NAMES = new Set([
+  "node_modules",
+  ".git",
+  "dist",
+  "build",
+  "coverage",
   ".DS_Store",
   "thumbs.db",
   "package-lock.json",
+  "yarn.lock",
+  "pnpm-lock.yaml",
   "project_context.txt",
+  ".env", // Ignored for security; .env.example will still be included
+  "mongo-keyfile", // Ignored for security
 ]);
 
-function getLanguageTag(ext, fileName = "") {
-  if (fileName.toLowerCase().includes("dockerfile")) return "dockerfile";
+// File extensions to ignore (binary/media/keys)
+const IGNORE_EXTENSIONS = new Set([
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".ico",
+  ".svg",
+  ".webp",
+  ".pdf",
+  ".zip",
+  ".tar",
+  ".gz",
+  ".7z",
+  ".exe",
+  ".dll",
+  ".so",
+  ".dylib",
+  ".key",
+  ".pem",
+  ".crt",
+  ".db",
+  ".sqlite",
+]);
 
-  const map = {
-    ".js": "javascript",
-    ".jsx": "jsx",
-    ".ts": "typescript",
-    ".tsx": "tsx",
-    ".css": "css",
-    ".scss": "scss",
-    ".json": "json",
-    ".html": "html",
-    ".svg": "xml",
-    ".md": "markdown",
-    ".yml": "yaml",
-    ".yaml": "yaml",
-    ".sh": "bash",
-    ".env": "dotenv",
-    ".txt": "text",
-  };
-  return map[ext] || "";
+// Language mappings for Markdown code blocks
+const EXTENSION_LANG_MAP = {
+  ".js": "javascript",
+  ".mjs": "javascript",
+  ".cjs": "javascript",
+  ".jsx": "jsx",
+  ".ts": "typescript",
+  ".tsx": "tsx",
+  ".json": "json",
+  ".html": "html",
+  ".css": "css",
+  ".scss": "scss",
+  ".md": "markdown",
+  ".yml": "yaml",
+  ".yaml": "yaml",
+  ".sh": "bash",
+  ".bash": "bash",
+  ".env": "dotenv",
+  ".example": "dotenv",
+  ".txt": "text",
+  ".sql": "sql",
+};
+
+/**
+ * Checks if a file or directory should be ignored.
+ */
+function shouldIgnore(itemName) {
+  if (IGNORE_NAMES.has(itemName)) return true;
+
+  const ext = path.extname(itemName).toLowerCase();
+  if (IGNORE_EXTENSIONS.has(ext)) return true;
+
+  // Ignore arbitrary hidden files, but allow critical configs
+  if (
+    itemName.startsWith(".") &&
+    !itemName.startsWith(".env") &&
+    !itemName.startsWith(".github") &&
+    !itemName.startsWith(".gitignore") &&
+    !itemName.startsWith(".dockerignore")
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
-function buildTree(dirPath, prefix = "") {
+/**
+ * Determines code block language tag for syntax highlighting.
+ */
+function getLanguageTag(filePath) {
+  const fileName = path.basename(filePath).toLowerCase();
+
+  if (fileName.includes("dockerfile")) return "dockerfile";
+  if (fileName === ".gitignore" || fileName === ".dockerignore")
+    return "ignorefile";
+
+  const ext = path.extname(filePath).toLowerCase();
+  return EXTENSION_LANG_MAP[ext] || "";
+}
+
+/**
+ * Generates an ASCII tree view starting from the root directory.
+ */
+function generateTree(dirPath, prefix = "") {
   let tree = "";
   if (!fs.existsSync(dirPath)) return tree;
 
   const items = fs
     .readdirSync(dirPath)
-    .filter((item) => !IGNORE_FILES.has(item))
-    .sort();
+    .filter((item) => !shouldIgnore(item))
+    .sort((a, b) => {
+      // Sort directories first, then files alphabetically
+      const aIsDir = fs.statSync(path.join(dirPath, a)).isDirectory();
+      const bIsDir = fs.statSync(path.join(dirPath, b)).isDirectory();
+      if (aIsDir && !bIsDir) return -1;
+      if (!aIsDir && bIsDir) return 1;
+      return a.localeCompare(b);
+    });
 
   items.forEach((item, index) => {
     const isLast = index === items.length - 1;
@@ -91,43 +138,45 @@ function buildTree(dirPath, prefix = "") {
     const fullPath = path.join(dirPath, item);
     const isDir = fs.statSync(fullPath).isDirectory();
 
-    tree += `${prefix}${connector}${item}\n`;
+    tree += `${prefix}${connector}${item}${isDir ? "/" : ""}\n`;
 
     if (isDir) {
-      const extension = isLast ? "    " : "│   ";
-      tree += buildTree(fullPath, prefix + extension);
+      const childPrefix = prefix + (isLast ? "    " : "│   ");
+      tree += generateTree(fullPath, childPrefix);
     }
   });
 
   return tree;
 }
 
-function getFiles(dirPath) {
-  let results = [];
-  if (!fs.existsSync(dirPath)) return results;
+/**
+ * Recursively collects all non-ignored file paths.
+ */
+function collectFiles(dirPath) {
+  let files = [];
+  if (!fs.existsSync(dirPath)) return files;
 
-  const list = fs.readdirSync(dirPath);
-  list.forEach((file) => {
-    if (IGNORE_FILES.has(file)) return;
+  const items = fs.readdirSync(dirPath);
 
-    const fullPath = path.join(dirPath, file);
+  for (const item of items) {
+    if (shouldIgnore(item)) continue;
+
+    const fullPath = path.join(dirPath, item);
     const stat = fs.statSync(fullPath);
 
-    if (stat && stat.isDirectory()) {
-      results = results.concat(getFiles(fullPath));
-    } else {
-      const ext = path.extname(file).toLowerCase();
-      if (
-        TEXT_EXTENSIONS.has(ext) ||
-        file.toLowerCase().includes("dockerfile")
-      ) {
-        results.push(fullPath);
-      }
+    if (stat.isDirectory()) {
+      files = files.concat(collectFiles(fullPath));
+    } else if (stat.isFile()) {
+      files.push(fullPath);
     }
-  });
-  return results;
+  }
+
+  return files;
 }
 
+/**
+ * Packs the repository structure and contents into a single file.
+ */
 function packContext() {
   let output =
     "======================================================================\n";
@@ -135,45 +184,24 @@ function packContext() {
   output +=
     "======================================================================\n\n";
 
-  // Build root files & directory tree view
-  TARGET_ROOT_FILES.forEach((file) => {
-    const filePath = path.join(ROOT_DIR, file);
-    if (fs.existsSync(filePath)) {
-      output += `${file}\n`;
-    }
-  });
+  // 1. Root-level tree
+  output += ".\n";
+  output += generateTree(ROOT_DIR);
+  output += "\n";
 
-  TARGET_DIRS.forEach((dir) => {
-    const dirPath = path.join(ROOT_DIR, dir);
-    if (fs.existsSync(dirPath)) {
-      output += `${dir}/\n`;
-      output += buildTree(dirPath);
-      output += "\n";
-    }
-  });
+  // 2. Gather file contents
+  const allFiles = collectFiles(ROOT_DIR).sort();
+  let packedCount = 0;
 
-  let fileCount = 0;
+  output +=
+    "======================================================================\n";
+  output += "FILE CONTENTS\n";
+  output +=
+    "======================================================================\n\n";
 
-  // Gather file paths to process
-  let allFiles = [];
-
-  // Add individual root files
-  TARGET_ROOT_FILES.forEach((file) => {
-    const filePath = path.join(ROOT_DIR, file);
-    if (fs.existsSync(filePath)) allFiles.push(filePath);
-  });
-
-  // Add files from target directories
-  TARGET_DIRS.forEach((dir) => {
-    const dirPath = path.join(ROOT_DIR, dir);
-    allFiles = allFiles.concat(getFiles(dirPath));
-  });
-
-  // Pack file contents
-  allFiles.forEach((filePath) => {
+  for (const filePath of allFiles) {
     const relativePath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
-    const ext = path.extname(filePath).toLowerCase();
-    const lang = getLanguageTag(ext, path.basename(filePath));
+    const lang = getLanguageTag(filePath);
 
     try {
       const content = fs.readFileSync(filePath, "utf-8");
@@ -185,14 +213,14 @@ function packContext() {
       output += `\`\`\`${lang}\n`;
       output += content.endsWith("\n") ? content : content + "\n";
       output += "```\n\n";
-      fileCount++;
+      packedCount++;
     } catch (err) {
       output += `/* Error reading file ${relativePath}: ${err.message} */\n\n`;
     }
-  });
+  }
 
   fs.writeFileSync(OUTPUT_FILE, output, "utf-8");
-  console.log(`Done! Packed ${fileCount} files into ${OUTPUT_FILE}`);
+  console.log(` Done! Packed ${packedCount} files into ${OUTPUT_FILE}`);
 }
 
 packContext();

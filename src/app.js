@@ -2,8 +2,9 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors"; // 👈 Import here
 
-import { testRouter } from "#routes";
-// import { handleReqErrors } from "#errors";
+import { env } from "#config";
+import { apiV1Router } from "#routes";
+import { handleReqErrors, NotFoundError } from "#errors";
 
 export const app = express();
 app
@@ -11,9 +12,12 @@ app
   .use(express.urlencoded({ extended: true }))
   .use(cookieParser())
   .use(cors())
-  // .use(env.API_PREFIX, apiV1Router)
-  .use("/test", testRouter)
-  .use((_, res) => {
-    return res.status(404).json({ message: "page not found :(" });
-  });
-// .use(handleReqErrors);
+  .use(env.API_PREFIX, apiV1Router)
+  .use((req, _res, next) => {
+    next(
+      new NotFoundError({
+        message: `Route [${req.method}] ${req.path} not found`,
+      }),
+    );
+  })
+  .use(handleReqErrors);

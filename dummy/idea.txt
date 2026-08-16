@@ -30,3 +30,1066 @@ forget password
 reset password
 update email
 update profile
+
+backend/
+    tests/
+    api-contracts/
+    src/
+
+signup/initiate
+signup/verify
+
+login/initiate
+login/verify
+
+delete-account/initiate
+delete-account/verify
+
+logout 
+
+change-email/initiate
+change-email/verify
+
+change-password/initiate
+change-password/verify
+
+### controllers : 
+
+  initiateSignup = async (req, res, next) => {
+    try {
+      const { email, password, firstName, lastName, phoneNumber } = req.body;
+
+      const result = await UserService.initiateSignup({
+        email,
+        password,
+        firstName,
+        lastName,
+        phoneNumber,
+      });
+
+      return res.status(202).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifySignup = async (req, res, next) => {
+    try {
+      const { email, otp } = req.body;
+
+      const newUser = await UserService.verifySignup(email, otp);
+
+      return res.status(201).json({
+        success: true,
+        data: {
+          message: "Account successfully provisioned.",
+          userId: newUser._id,
+          email: newUser.email,
+        },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ==========================================
+  // LOGIN CONTROLLERS
+  // ==========================================
+
+  initiateLogin = async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
+
+      const result = await UserService.initiateLogin(email, password);
+
+      return res.status(200).json({
+        success: true,
+        data: result, // Contains userId and 2FA message
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifyLogin = async (req, res, next) => {
+    try {
+      const { userId, otp } = req.body;
+
+      const { user, tokenName } = await UserService.verifyLogin(
+        userId,
+        otp,
+        res,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: "Authentication handshake successful.",
+          profile: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            role: user.role,
+          },
+          sessionCookieName: tokenName,
+        },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiatePasswordReset = async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      const result = await UserService.initiatePasswordReset(email);
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  completePasswordReset = async (req, res, next) => {
+    try {
+      const { userId, otp, newPassword } = req.body;
+      const result = await UserService.completePasswordReset(
+        userId,
+        otp,
+        newPassword,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  changePassword = async (req, res, next) => {
+    try {
+      const userId = req.user.id; // Set downstream via your AuthMiddleware
+      const { currentPassword, newPassword } = req.body;
+
+      const result = await UserService.changePassword(
+        userId,
+        currentPassword,
+        newPassword,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: { message: "Credentials successfully synchronized." },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  logout = async (req, res, next) => {
+    try {
+      const userRole = req.user.role; // Set downstream via your AuthMiddleware
+
+      await UserService.logout(userRole, res);
+
+      return res.status(200).json({
+        success: true,
+        data: { message: "Session terminated successfully." },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteAccount = async (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const userRole = req.user.role;
+
+      await UserService.softDeleteAccount(userId, res, userRole);
+
+      return res.status(200).json({
+        success: true,
+        data: { message: "Profile successfully offboarded." },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiateEmailChange = async (req, res, next) => {
+    try {
+      const result = await UserService.initiateEmailChange(
+        req.user.id,
+        req.body.currentPassword,
+      );
+      return res.status(200).json({ success: true, data: result, error: null });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifyExistingEmailOtp = async (req, res, next) => {
+    try {
+      const result = await UserService.verifyExistingEmailOtp(
+        req.user.id,
+        req.body.otp,
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Current email verified. You may now enter your new email.",
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  requestNewEmailVerification = async (req, res, next) => {
+    try {
+      const { emailChangeToken, newEmail } = req.body;
+      const result = await UserService.requestNewEmailVerification(
+        req.user.id,
+        emailChangeToken,
+        newEmail,
+      );
+      return res.status(200).json({ success: true, data: result, error: null });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  confirmNewEmailUpdate = async (req, res, next) => {
+    try {
+      const { emailChangeToken, newEmail, otp } = req.body;
+      const updatedUser = await UserService.confirmNewEmailUpdate(
+        req.user.id,
+        emailChangeToken,
+        newEmail,
+        otp,
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Email address updated successfully.",
+        data: updatedUser,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiatePasswordChange = async (req, res, next) => {
+    try {
+      const result = await UserService.initiatePasswordChange(
+        req.user.id,
+        req.body.currentPassword,
+      );
+      return res.status(200).json({ success: true, data: result, error: null });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  confirmPasswordChange = async (req, res, next) => {
+    try {
+      const { otp, newPassword } = req.body;
+      const result = await UserService.confirmPasswordChange(
+        req.user.id,
+        otp,
+        newPassword,
+      );
+      return res.status(200).json({
+        success: true,
+        message: result.message,
+        data: null,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+### services : 
+
+export class UserServiceClass {
+  _jwtSecret = env.JWT_SECRET;
+  _otpTtL = 300; // 5 minutes in seconds
+
+  _getCookieConfig(role) {
+    const tokenName = `${role}_token`;
+    const options = {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+    return { tokenName, options };
+  }
+
+  // ==========================================
+  // SIGNUP WORKFLOW
+  // ==========================================
+
+  async initiateSignup(signupData) {
+    const { email, password, firstName, lastName, phoneNumber } = signupData;
+
+    // Check if user already exists in persistent storage
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new ConflictError({
+        message: "An account with this email already exists.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const otp = generateOTP();
+
+    // Cache registration payload in Redis
+    const redisKey = `pending:signup:${email.toLowerCase()}`;
+    const payload = JSON.stringify({
+      firstName,
+      lastName,
+      email,
+      passwordHash,
+      otp,
+      phoneNumber,
+    });
+    await redis.setex(redisKey, this._otpTtL, payload);
+
+    // Dispatch OTP via mail infrastructure
+    await MailService.sendEmail(
+      email,
+      otp,
+      "Verify Your Registration",
+      "Thank you for registering. Please use the following 2FA verification code to finalize creating your account. This code is valid for 5 minutes.",
+    );
+
+    return { message: "Verification OTP dispatched to email." };
+  }
+
+  async verifySignup(email, submittedOtp) {
+    const redisKey = `pending:signup:${email.toLowerCase()}`;
+    const cachedData = await redis.get(redisKey);
+
+    if (!cachedData) {
+      throw new ExpiredSessionError({
+        message: "Verification session expired. Please register again.",
+      });
+    }
+
+    const { firstName, lastName, passwordHash, otp, phoneNumber } =
+      JSON.parse(cachedData);
+
+    if (otp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification code provided.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    // Persist to MongoDB since authentication succeeded
+    const newUser = await User.create({
+      firstName,
+      lastName,
+      email: email.toLowerCase(),
+      phoneNumber,
+      passwordHash,
+      role: "customer", // Defaults to customer on direct signup
+    });
+
+    // Wipe Redis cache record
+    await redis.del(redisKey);
+
+    return newUser;
+  }
+
+  // ==========================================
+  // LOGIN WORKFLOW
+  // ==========================================
+
+  async initiateLogin(email, password) {
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+      isActive: true,
+    });
+    if (!user) {
+      throw new UnauthorizedError({
+        message: "Invalid email or password credentials.",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new UnauthorizedError({
+        message: "Invalid email or password credentials.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:auth:${user._id}`;
+
+    // Cache OTP challenges tightly under user ID reference
+    await redis.setex(redisKey, this._otpTtL, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "2-Step Verification Login Request",
+      "A login attempt was initiated for your profile. Input this security code to verify your session identity.",
+    );
+
+    return { userId: user._id, message: "2FA checkpoint reached. Code sent." };
+  }
+
+  async verifyLogin(userId, submittedOtp, res) {
+    const redisKey = `pending:auth:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message: "Login verification session expired. Please re-authenticate.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid security verification code.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({
+        message: "Account profile records non-existent.",
+      });
+    }
+
+    if (!user.isActive) {
+      throw new ForbiddenError({
+        message: "Account access restrictions active. Contact support.",
+      });
+    }
+
+    // Issue Token Payload matching AuthMiddleware rules down-stream
+    const tokenPayload = { id: user._id, email: user.email, role: user.role };
+    const token = jwt.sign(tokenPayload, this._jwtSecret, { expiresIn: "7d" });
+
+    // Dynmically determine identity token names based on system scopes
+    const { tokenName, options } = this._getCookieConfig(user.role);
+    res.cookie(tokenName, token, options);
+
+    // Clean verification state
+    await redis.del(redisKey);
+
+    return { user, tokenName };
+  }
+
+  // ==========================================
+  // FORGOT / RESET PASSWORD WORKFLOW
+  // ==========================================
+
+  async initiatePasswordReset(email) {
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+      isActive: true,
+    });
+    if (!user) {
+      // Security abstract: avoid leaking existence mapping, but return safely
+      return {
+        message: "If the account exists, a reset code has been dispatched.",
+      };
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:reset:${user._id}`;
+    await redis.setex(redisKey, this._otpTtL, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Password Reset Code Verification",
+      "We received a request to update your password profile security credentials. Use this authorization code to proceed.",
+    );
+
+    return {
+      userId: user._id,
+      message: "If the account exists, a reset code has been dispatched.",
+    };
+  }
+
+  async completePasswordReset(userId, submittedOtp, newPassword) {
+    const redisKey = `pending:reset:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message: "Password authorization pipeline token expired.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid password modification token.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { passwordHash },
+      { new: true },
+    );
+
+    await redis.del(redisKey);
+    return {
+      success: true,
+      message: "Security parameters successfully reset.",
+    };
+  }
+
+  // ==========================================
+  // PROTECTED UTILITY WORKFLOWS
+  // ==========================================
+
+  // ==========================================
+  // PASSWORD CHANGE WORKFLOW (Via Email OTP)
+  // ==========================================
+
+  // Step 1: Verify current password -> Dispatch OTP to registered email
+  async initiatePasswordChange(userId, currentPassword) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.passwordHash,
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedError({
+        message: "Invalid current password provided.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:password-change:${userId}`;
+    await redis.setex(redisKey, this._otpTtL, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Authorize Password Change Request",
+      "A request was made to change your account password. Use this verification code to authorize the change. Valid for 5 minutes.",
+    );
+
+    return {
+      message:
+        "Security verification code sent to your registered email address.",
+    };
+  }
+
+  // Step 2: Verify OTP & update password in MongoDB
+  async confirmPasswordChange(userId, submittedOtp, newPassword) {
+    const redisKey = `pending:password-change:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message: "Password reset session expired. Please request a new code.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification code provided.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    // Hash new password & save document
+    user.passwordHash = await bcrypt.hash(newPassword, 12);
+    await user.save();
+
+    // Clear Redis session
+    await redis.del(redisKey);
+
+    return { message: "Password updated successfully." };
+  }
+
+  async logout(userRole, res) {
+    const { tokenName, options } = this._getCookieConfig(userRole);
+
+    res.clearCookie(tokenName, { ...options, maxAge: 0 });
+    return { success: true };
+  }
+
+  async softDeleteAccount(userId, res, userRole) {
+    const user = await User.findByIdAndUpdate(userId, { isActive: false });
+    if (!user) {
+      throw new NotFoundError({ message: "Target user non-existent." });
+    }
+
+    await this.logout(userRole, res);
+    return { success: true, message: "Account successfully closed." };
+  }
+
+
+  async initiateEmailChange(userId, currentPassword) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.passwordHash,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedError({
+        message: "Invalid current password provided.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:email-change:step1:${userId}`;
+
+    // Cache OTP in Redis for 5 minutes
+    await redis.setex(redisKey, this._otpTtL, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Authorize Email Change Request",
+      "A request was initiated to update your account email. Use this security code to verify ownership of your current email address.",
+    );
+
+    return {
+      message:
+        "Security authorization code sent to your current email address.",
+    };
+  }
+
+  // Step 2: Verify current email OTP -> issue temporary session authorization token
+  async verifyExistingEmailOtp(userId, submittedOtp) {
+    const redisKey = `pending:email-change:step1:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message:
+          "Email verification session expired. Please restart the process.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification code provided.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    // Clear step 1 state
+    await redis.del(redisKey);
+
+    // Generate temporary access token for step 3 & 4 (Valid for 10 minutes)
+    const emailChangeToken = crypto.randomBytes(32).toString("hex");
+    const tokenKey = `pending:email-change:authorized:${userId}`;
+    await redis.setex(tokenKey, 600, emailChangeToken);
+
+    return { emailChangeToken };
+  }
+
+  // Step 3: Check new email uniqueness & send OTP to target email
+  async requestNewEmailVerification(userId, emailChangeToken, newEmail) {
+    const tokenKey = `pending:email-change:authorized:${userId}`;
+    const storedToken = await redis.get(tokenKey);
+
+    if (!storedToken || storedToken !== emailChangeToken) {
+      throw new UnauthorizedError({
+        message: "Unauthorized or expired email modification session.",
+      });
+    }
+
+    // Check if target email is already claimed by another user
+    const existingUser = await User.findOne({ email: newEmail.toLowerCase() });
+    if (existingUser) {
+      throw new ConflictError({
+        message: "An account with this target email address already exists.",
+      });
+    }
+
+    const newOtp = generateOTP();
+    const redisKey = `pending:email-change:step2:${userId}`;
+    const payload = JSON.stringify({
+      newEmail: newEmail.toLowerCase(),
+      otp: newOtp,
+    });
+
+    await redis.setex(redisKey, this._otpTtL, payload);
+
+    await MailService.sendEmail(
+      newEmail,
+      newOtp,
+      "Verify Your New Email Address",
+      "Please use this code to confirm and link your new email address to your account.",
+    );
+
+    return { message: "Verification code sent to your new email address." };
+  }
+
+  // Step 4: Verify new email OTP & commit update to MongoDB
+  async confirmNewEmailUpdate(
+    userId,
+    emailChangeToken,
+    newEmail,
+    submittedOtp,
+  ) {
+    const tokenKey = `pending:email-change:authorized:${userId}`;
+    const storedToken = await redis.get(tokenKey);
+
+    if (!storedToken || storedToken !== emailChangeToken) {
+      throw new UnauthorizedError({
+        message: "Unauthorized or expired email modification session.",
+      });
+    }
+
+    const step2Key = `pending:email-change:step2:${userId}`;
+    const cachedData = await redis.get(step2Key);
+
+    if (!cachedData) {
+      throw new ExpiredSessionError({
+        message:
+          "New email verification session expired. Please request a new code.",
+      });
+    }
+
+    const { newEmail: targetEmail, otp: storedOtp } = JSON.parse(cachedData);
+
+    if (targetEmail !== newEmail.toLowerCase() || storedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification details or target email mismatch.",
+      });
+    }
+
+    // Persist updated email
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { email: newEmail.toLowerCase() },
+      { new: true },
+    ).select("-passwordHash");
+
+    // Clean up Redis keys
+    await redis.del([tokenKey, step2Key]);
+
+    return updatedUser;
+  }
+
+### user routes : 
+
+import express from "express";
+import { UserController } from "#controllers";
+import { UserValidator } from "#validators";
+import { ValidateMiddleware, AuthMiddleware } from "#middlewares";
+
+export const userRouter = express.Router();
+
+// ----------------------------------------------------
+// Public Authentication Pipeline (Guarded by Joi Body Rules)
+// ----------------------------------------------------
+
+// Step 1: Initiate registration (Dispatches 2FA OTP to Redis + Email)
+userRouter.post(
+  "/signup/initiate",
+  ValidateMiddleware.body(UserValidator.initiateSignup),
+  UserController.initiateSignup,
+);
+
+// Step 2: Finalize registration (Verifies OTP and commits user to MongoDB)
+userRouter.post(
+  "/signup/verify",
+  ValidateMiddleware.body(UserValidator.verifySignup),
+  UserController.verifySignup,
+);
+
+// Step 1: Initiate authentication (Validates credentials, sends login OTP)
+userRouter.post(
+  "/login/initiate",
+  ValidateMiddleware.body(UserValidator.loginInitiate),
+  UserController.initiateLogin,
+);
+
+// Step 2: Finalize authentication (Verifies OTP and issues secure httpOnly role cookie)
+userRouter.post(
+  "/login/verify",
+  ValidateMiddleware.body(UserValidator.loginVerify),
+  UserController.verifyLogin,
+);
+
+// Step 1: Request account recovery (Dispatches reset OTP code)
+userRouter.post(
+  "/forgot-password",
+  ValidateMiddleware.body(UserValidator.forgotPassword),
+  UserController.initiatePasswordReset,
+);
+
+// Step 2: Conclude account recovery (Validates state and rewrites passwordHash)
+userRouter.post(
+  "/reset-password",
+  ValidateMiddleware.body(UserValidator.resetPassword),
+  UserController.completePasswordReset,
+);
+
+// ----------------------------------------------------
+// Protected User Operations (Requires Active Role Whitelist Session)
+// ----------------------------------------------------
+
+// Terminate session (Accessible to any authenticated user tier)
+userRouter.post(
+  "/logout",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  UserController.logout,
+);
+
+// Intercept profile updates (Validates changing parameters)
+userRouter.patch(
+  "/account/change-password",
+  AuthMiddleware.authorize(["customer"]),
+  ValidateMiddleware.body(UserValidator.changePassword),
+  UserController.changePassword,
+);
+
+
+userRouter.delete(
+  "/account",
+  AuthMiddleware.authorize(["customer"]),
+  UserController.deleteAccount,
+);
+
+
+// Step 1: Validate password & send OTP to current email
+userRouter.post(
+  "/account/email/change-initiate",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.initiateEmailChange),
+  UserController.initiateEmailChange,
+);
+
+// Step 2: Validate OTP from current email & receive state token
+userRouter.post(
+  "/account/email/verify-current-otp",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.verifyExistingEmailOtp),
+  UserController.verifyExistingEmailOtp,
+);
+
+// Step 3: Validate state token & send OTP to new email
+userRouter.post(
+  "/account/email/request-new-otp",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.requestNewEmailVerification),
+  UserController.requestNewEmailVerification,
+);
+
+// Step 4: Validate new email OTP & commit update
+userRouter.post(
+  "/account/email/confirm-update",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.confirmNewEmailUpdate),
+  UserController.confirmNewEmailUpdate,
+);
+
+
+// Step 1: Validate current password -> Send OTP to email
+userRouter.post(
+  "/account/password/change-initiate",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.initiatePasswordChange),
+  UserController.initiatePasswordChange,
+);
+
+// Step 2: Validate OTP + new password -> Commit new password
+userRouter.post(
+  "/account/password/change-confirm",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.confirmPasswordChange),
+  UserController.confirmPasswordChange,
+);
+
+
+import nodemailer from "nodemailer";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { env } from "#config";
+import { logger } from "#utils";
+import { MailServiceError, MailTemplateError } from "#errors";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export class MailServiceClass {
+  _transporter = nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_SECURE,
+    auth: {
+      user: env.SMTP_USER,
+      pass: env.SMTP_PASS,
+    },
+  });
+
+  _fromAddress = env.SMTP_FROM;
+  _templatePath = path.join(__dirname, "../templates/email-template.html");
+  _cachedHtml = null;
+
+  _loadTemplate = async () => {
+    if (this._cachedHtml) return this._cachedHtml;
+    try {
+      this._cachedHtml = await fs.readFile(this._templatePath, "utf8");
+      return this._cachedHtml;
+    } catch (error) {
+      throw new MailTemplateError({
+        message: "Critical: Mail infrastructure layout missing.",
+        errors: [error.message],
+      });
+    }
+  };
+
+  sendEmail = async (to, otp, subject, purposeText) => {
+    const rawTemplate = await this._loadTemplate();
+
+    const personalizedHtml = rawTemplate
+      .replace("{{OTP}}", otp)
+      .replace("{{PURPOSE_TEXT}}", purposeText);
+
+    try {
+      const deliveryReceipt = await this._transporter.sendMail({
+        from: this._fromAddress,
+        to,
+        subject: subject,
+        html: personalizedHtml,
+      });
+
+      logger.info(
+        `✅ Outbound email systematically delivered to: ${to} [ID: ${deliveryReceipt.messageId}]`,
+      );
+
+      return true;
+    } catch (error) {
+      throw new MailServiceError({
+        message:
+          "Unable to complete security authentication message transmission.",
+        errors: [error.message],
+      });
+    }
+  };
+}
+
+export const MailService = new MailServiceClass();
+
+### email-template.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Marketplace</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding: 5% 2%;">
+    <tr>
+      <td align="center">
+        <!--[if mso]>
+        <table width="600" cellpadding="0" cellspacing="0" style="background: #111827; border-radius: 12px;">
+        <tr><td>
+        <![endif]-->
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #111827; border-radius: 12px; overflow: hidden; box-shadow: 0 4vw 15vw rgba(0,0,0,0.5);">
+
+          <!-- Premium Dark Gradient Header -->
+          <tr>
+            <td align="center" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%); color: #ffffff; padding: 6% 4%; border-bottom: 1px solid #334155;">
+              <h1 style="margin: 0; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; color: #ffffff;">Global Marketplace</h1>
+              <p style="margin: 1.5% 0 0 0; font-size: 1rem; opacity: 0.85; font-weight: 400; color: #93c5fd;">Secure Account Verification</p>
+            </td>
+          </tr>
+
+          <!-- Main Body Content -->
+          <tr>
+            <td style="padding: 8% 6%;">
+              <h2 style="margin-top: 0; margin-bottom: 4%; color: #f8fafc; font-size: 1.35rem; font-weight: 600;">Hello,</h2>
+
+              <p style="color: #cbd5e1; line-height: 1.6; font-size: 1rem; margin-bottom: 4%;">
+                {{PURPOSE_TEXT}}
+              </p>
+
+              <p style="color: #cbd5e1; line-height: 1.6; font-size: 1rem; margin-bottom: 6%;">
+                Your One-Time Password (OTP) is:
+              </p>
+
+              <!-- Neon Accent Dark OTP Container -->
+              <div style="margin: 6% auto; width: fit-content; background: #1e293b; border: 2px dashed #3b82f6; border-radius: 8px; padding: 4% 8%; font-size: 2rem; font-weight: 700; letter-spacing: 0.25em; color: #60a5fa; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 2vw rgba(59, 130, 246, 0.15);">
+                {{OTP}}
+              </div>
+
+              <p style="color: #94a3b8; line-height: 1.6; font-size: 0.95rem; margin-bottom: 3%;">
+                This OTP is valid for <strong style="color: #f8fafc;">5 minutes</strong>.
+              </p>
+
+              <p style="color: #94a3b8; line-height: 1.6; font-size: 0.95rem; margin-bottom: 0;">
+                If you didn't request this verification, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Muted Dark Footer -->
+          <tr>
+            <td align="center" style="background: #0f172a; padding: 4% 6%; color: #64748b; font-size: 0.8rem; border-top: 1px solid #1e293b;">
+              <p style="margin: 0 0 1% 0;">&copy; 2026 Global Marketplace</p>
+              <p style="margin: 0;">This is an automated email. Please do not reply.</p>
+            </td>
+          </tr>
+
+        </table>
+        <!--[if mso]>
+        </td></tr>
+        </table>
+        <![endif]-->
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+--- end ---

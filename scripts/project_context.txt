@@ -2,128 +2,224 @@
 PROJECT ARCHITECTURE TREE
 ======================================================================
 
-index.js
-package.json
-README.md
-Dockerfile
+.
+├── .github/
+│   └── workflows/
+│       ├── deploy.yml
+│       └── test.yml
+├── dummy/
+│   ├── hello.js
+│   └── idea.txt
+├── mongo/
+├── public/
+├── scripts/
+│   └── pack-context.js
+├── src/
+│   ├── config/
+│   │   ├── consts.js
+│   │   ├── env.js
+│   │   ├── index.js
+│   │   ├── mongodb.js
+│   │   └── redis.js
+│   ├── contracts/
+│   │   ├── auth.contract.js
+│   │   ├── common.contract.js
+│   │   ├── index.js
+│   │   ├── test.contract.js
+│   │   └── user.contract.js
+│   ├── controllers/
+│   │   ├── auth.controller.js
+│   │   ├── index.js
+│   │   ├── test.controller.js
+│   │   └── user.controller.js
+│   ├── errors/
+│   │   └── index.js
+│   ├── middlewares/
+│   │   ├── auth.middleware.js
+│   │   ├── index.js
+│   │   └── validate.middleware.js
+│   ├── models/
+│   │   ├── index.js
+│   │   ├── list.model.js
+│   │   ├── task.model.js
+│   │   └── user.model.js
+│   ├── routes/
+│   │   ├── api.v1.router.js
+│   │   ├── auth.router.js
+│   │   ├── index.js
+│   │   ├── test.router.js
+│   │   └── user.router.js
+│   ├── schemas/
+│   │   └── index.js
+│   ├── services/
+│   │   ├── auth.service.js
+│   │   ├── index.js
+│   │   ├── mail.service.js
+│   │   └── user.service.js
+│   ├── templates/
+│   │   └── email-template.html
+│   ├── utils/
+│   │   ├── generateOtp.util.js
+│   │   ├── index.js
+│   │   └── logger.util.js
+│   ├── validators/
+│   │   └── index.js
+│   ├── app.js
+│   └── server.js
+├── tests/
+│   ├── integration/
+│   │   └── test.router.test.js
+│   └── unit/
+│       └── test.controller.test.js
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── compose.yml
+├── Dockerfile
+├── Dockerfile.dev
+├── index.js
+├── package.json
+└── README.md
+
+======================================================================
+FILE CONTENTS
+======================================================================
+
+======================================================================
+FILE: .dockerignore
+======================================================================
+```ignorefile
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+.git
+.gitignore
+.github
+
+.env
+.env.*
+!.env.example
+
 Dockerfile.dev
 compose.yml
-.env.example
-.gitignore
-.dockerignore
-src/
-├── app.js
-├── config
-│   ├── consts.js
-│   ├── env.js
-│   ├── index.js
-│   ├── mongodb.js
-│   └── redis.js
-├── controllers
-│   └── index.js
-├── errors
-│   └── index.js
-├── middlewares
-│   └── index.js
-├── models
-│   ├── index.js
-│   ├── list.model.js
-│   ├── task.model.js
-│   └── user.model.js
-├── routes
-│   └── index.js
-├── schemas
-│   └── index.js
-├── server.js
-├── services
-│   └── index.js
-├── utils
-│   ├── index.js
-│   └── logger.js
-└── validators
-    └── index.js
 
-scripts/
-└── pack-context.js
+coverage
+.nyc_output
 
-dummy/
-└── idea.txt
+.vscode
+.idea
 
-tests/
-
-.github/
-└── workflows
-    ├── deploy.yml
-    └── test.yml
-
-======================================================================
-FILE: index.js
-======================================================================
-```javascript
-import { env } from "#config";
-import { logger } from "#utils";
+.DS_Store
+*.log
 ```
 
 ======================================================================
-FILE: package.json
+FILE: .env.example
 ======================================================================
-```json
-{
-  "name": "todo_app",
-  "version": "1.0.0",
-  "description": "this is a simple dummy todo app for testing frontend and backend deployment",
-  "homepage": "https://github.com/niladri-sarkhel/todo_app_backend#readme",
-  "bugs": {
-    "url": "https://github.com/niladri-sarkhel/todo_app_backend/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/niladri-sarkhel/todo_app_backend.git"
-  },
-  "license": "ISC",
-  "author": "niladri-sarkhel",
-  "type": "module",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
-  "imports": {
-    "#config": "./src/config/index.js",
-    "#controllers": "./src/controllers/index.js",
-    "#errors": "./src/errors/index.js",
-    "#middlewares": "./src/middlewares/index.js",
-    "#models": "./src/models/index.js",
-    "#schemas": "./src/schemas/index.js",
-    "#routes": "./src/routes/index.js",
-    "#services": "./src/services/index.js",
-    "#utils": "./src/utils/index.js",
-    "#validators": "./src/validators/index.js",
-    "#app": "./src/app.js",
-    "#server": "./src/server.js"
-  },
-  "scripts": {
-    "nil": "echo hello-world",
-    "dev": "nodemon ./index.js",
-    "start": "node ./index.js"
-  },
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "ioredis": "^6.0.0",
-    "joi": "^18.2.3",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.9.2",
-    "nodemailer": "^9.0.5",
-    "pino": "^10.3.1",
-    "pino-pretty": "^13.1.3"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.14"
-  }
-}
+```dotenv
+APP_NAME=todo_app
+PORT=3000
+APP_URL=http://localhost:3000
+
+NODE_ENV=development
+API_PREFIX=/api/v1
+LOG_LEVEL=info
+
+MONGO_URI=mongodb://<username>:<password>@<host>:<port>/<db_name>?replicaSet=rs0&authSource=<db_name>
+
+JWT_SECRET=<jwt_secret_key>
+JWT_EXPIRES_IN=7d
+
+REDIS_HOST=todo_redis
+REDIS_PORT=6379
+REDIS_PASSWORD=<password>
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=fastfone.shop@gmail.com
+SMTP_PASS=<password>
+SMTP_FROM="FastPhone <fastfone.shop@gmail.com>"
+```
+
+======================================================================
+FILE: .github/workflows/deploy.yml
+======================================================================
+```yaml
+name: Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run test suite
+        run: npm test --if-present
+
+      - name: Verify build output
+        run: echo "Code validated on main branch. Ready for deployment steps."
+```
+
+======================================================================
+FILE: .github/workflows/test.yml
+======================================================================
+```yaml
+name: Test Suite Placeholder
+
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Test workflow placeholder"
+```
+
+======================================================================
+FILE: .gitignore
+======================================================================
+```ignorefile
+node_modules/
+.env
+.env.local
+mongo/
+*.keyfile
+project_context.txt
+```
+
+======================================================================
+FILE: Dockerfile
+======================================================================
+```dockerfile
+
+```
+
+======================================================================
+FILE: Dockerfile.dev
+======================================================================
+```dockerfile
+
 ```
 
 ======================================================================
@@ -370,20 +466,6 @@ This project is for learning and practice purposes.
 ```
 
 ======================================================================
-FILE: Dockerfile
-======================================================================
-```dockerfile
-
-```
-
-======================================================================
-FILE: Dockerfile.dev
-======================================================================
-```dockerfile
-
-```
-
-======================================================================
 FILE: compose.yml
 ======================================================================
 ```yaml
@@ -391,7 +473,7 @@ name: todo-backend
 
 services:
 # nodejs server configuration
-  server:
+  nodejs:
     image: node:26-alpine
     container_name: todo_server
     user: "${UID:-1000}:${GID:-1000}"
@@ -408,11 +490,11 @@ services:
     networks:
       - todo_net
     depends_on:
-      database:
+      mongodb:
         condition: service_healthy
 
 # mongodb server configuration
-  database:
+  mongodb:
     image: mongo:latest
     container_name: todo_db
     restart: unless-stopped
@@ -470,81 +552,1455 @@ networks:
 ```
 
 ======================================================================
-FILE: .env.example
+FILE: dummy/hello.js
 ======================================================================
-```
-APP_NAME=todo_app
-PORT=3000
-APP_URL=http://localhost:3000
+```javascript
 
-NODE_ENV=development
-API_PREFIX=/api/v1
-LOG_LEVEL=info
-
-MONGO_URI=mongodb://<username>:<password>@<host>:<port>/<db_name>?replicaSet=rs0&authSource=<db_name>
-
-JWT_SECRET=<jwt_secret_key>
-JWT_EXPIRES_IN=7d
-
-REDIS_HOST=todo_redis
-REDIS_PORT=6379
-REDIS_PASSWORD=<password>
-
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
-SMTP_SECURE=true
-SMTP_USER=fastfone.shop@gmail.com
-SMTP_PASS=<password>
-SMTP_FROM="FastPhone <fastfone.shop@gmail.com>"
 ```
 
 ======================================================================
-FILE: .gitignore
+FILE: dummy/idea.txt
 ======================================================================
-```
-node_modules/
-.env
-.env.local
-mongo/
-*.keyfile
+```text
+--- db-design ---
+collections / entities : 
+1. users 
+2. lists 
+3. tasks
+
+1. user : 
+_id
+email
+password
+
+2. list :
+_id
+list_name
+
+3. task : 
+_id
+task_name 
+task_status
+
+--- features ---
+
+* account management : 
+(email based otp)
+signup
+login
+logout
+delete-account
+forget password
+reset password
+update email
+update profile
+
+backend/
+    tests/
+    api-contracts/
+    src/
+
+signup/initiate
+signup/verify
+
+login/initiate
+login/verify
+
+delete-account/initiate
+delete-account/verify
+
+logout 
+
+change-email/initiate
+change-email/verify
+
+change-password/initiate
+change-password/verify
+
+### controllers : 
+
+  initiateSignup = async (req, res, next) => {
+    try {
+      const { email, password, firstName, lastName, phoneNumber } = req.body;
+
+      const result = await UserService.initiateSignup({
+        email,
+        password,
+        firstName,
+        lastName,
+        phoneNumber,
+      });
+
+      return res.status(202).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifySignup = async (req, res, next) => {
+    try {
+      const { email, otp } = req.body;
+
+      const newUser = await UserService.verifySignup(email, otp);
+
+      return res.status(201).json({
+        success: true,
+        data: {
+          message: "Account successfully provisioned.",
+          userId: newUser._id,
+          email: newUser.email,
+        },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ==========================================
+  // LOGIN CONTROLLERS
+  // ==========================================
+
+  initiateLogin = async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
+
+      const result = await UserService.initiateLogin(email, password);
+
+      return res.status(200).json({
+        success: true,
+        data: result, // Contains userId and 2FA message
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifyLogin = async (req, res, next) => {
+    try {
+      const { userId, otp } = req.body;
+
+      const { user, tokenName } = await UserService.verifyLogin(
+        userId,
+        otp,
+        res,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: "Authentication handshake successful.",
+          profile: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            role: user.role,
+          },
+          sessionCookieName: tokenName,
+        },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiatePasswordReset = async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      const result = await UserService.initiatePasswordReset(email);
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  completePasswordReset = async (req, res, next) => {
+    try {
+      const { userId, otp, newPassword } = req.body;
+      const result = await UserService.completePasswordReset(
+        userId,
+        otp,
+        newPassword,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  changePassword = async (req, res, next) => {
+    try {
+      const userId = req.user.id; // Set downstream via your AuthMiddleware
+      const { currentPassword, newPassword } = req.body;
+
+      const result = await UserService.changePassword(
+        userId,
+        currentPassword,
+        newPassword,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: { message: "Credentials successfully synchronized." },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  logout = async (req, res, next) => {
+    try {
+      const userRole = req.user.role; // Set downstream via your AuthMiddleware
+
+      await UserService.logout(userRole, res);
+
+      return res.status(200).json({
+        success: true,
+        data: { message: "Session terminated successfully." },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteAccount = async (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const userRole = req.user.role;
+
+      await UserService.softDeleteAccount(userId, res, userRole);
+
+      return res.status(200).json({
+        success: true,
+        data: { message: "Profile successfully offboarded." },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiateEmailChange = async (req, res, next) => {
+    try {
+      const result = await UserService.initiateEmailChange(
+        req.user.id,
+        req.body.currentPassword,
+      );
+      return res.status(200).json({ success: true, data: result, error: null });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifyExistingEmailOtp = async (req, res, next) => {
+    try {
+      const result = await UserService.verifyExistingEmailOtp(
+        req.user.id,
+        req.body.otp,
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Current email verified. You may now enter your new email.",
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  requestNewEmailVerification = async (req, res, next) => {
+    try {
+      const { emailChangeToken, newEmail } = req.body;
+      const result = await UserService.requestNewEmailVerification(
+        req.user.id,
+        emailChangeToken,
+        newEmail,
+      );
+      return res.status(200).json({ success: true, data: result, error: null });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  confirmNewEmailUpdate = async (req, res, next) => {
+    try {
+      const { emailChangeToken, newEmail, otp } = req.body;
+      const updatedUser = await UserService.confirmNewEmailUpdate(
+        req.user.id,
+        emailChangeToken,
+        newEmail,
+        otp,
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Email address updated successfully.",
+        data: updatedUser,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiatePasswordChange = async (req, res, next) => {
+    try {
+      const result = await UserService.initiatePasswordChange(
+        req.user.id,
+        req.body.currentPassword,
+      );
+      return res.status(200).json({ success: true, data: result, error: null });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  confirmPasswordChange = async (req, res, next) => {
+    try {
+      const { otp, newPassword } = req.body;
+      const result = await UserService.confirmPasswordChange(
+        req.user.id,
+        otp,
+        newPassword,
+      );
+      return res.status(200).json({
+        success: true,
+        message: result.message,
+        data: null,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+### services : 
+
+export class UserServiceClass {
+  _jwtSecret = env.JWT_SECRET;
+  _otpTtL = 300; // 5 minutes in seconds
+
+  _getCookieConfig(role) {
+    const tokenName = `${role}_token`;
+    const options = {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+    return { tokenName, options };
+  }
+
+  // ==========================================
+  // SIGNUP WORKFLOW
+  // ==========================================
+
+  async initiateSignup(signupData) {
+    const { email, password, firstName, lastName, phoneNumber } = signupData;
+
+    // Check if user already exists in persistent storage
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new ConflictError({
+        message: "An account with this email already exists.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const otp = generateOTP();
+
+    // Cache registration payload in Redis
+    const redisKey = `pending:signup:${email.toLowerCase()}`;
+    const payload = JSON.stringify({
+      firstName,
+      lastName,
+      email,
+      passwordHash,
+      otp,
+      phoneNumber,
+    });
+    await redis.setex(redisKey, this._otpTtL, payload);
+
+    // Dispatch OTP via mail infrastructure
+    await MailService.sendEmail(
+      email,
+      otp,
+      "Verify Your Registration",
+      "Thank you for registering. Please use the following 2FA verification code to finalize creating your account. This code is valid for 5 minutes.",
+    );
+
+    return { message: "Verification OTP dispatched to email." };
+  }
+
+  async verifySignup(email, submittedOtp) {
+    const redisKey = `pending:signup:${email.toLowerCase()}`;
+    const cachedData = await redis.get(redisKey);
+
+    if (!cachedData) {
+      throw new ExpiredSessionError({
+        message: "Verification session expired. Please register again.",
+      });
+    }
+
+    const { firstName, lastName, passwordHash, otp, phoneNumber } =
+      JSON.parse(cachedData);
+
+    if (otp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification code provided.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    // Persist to MongoDB since authentication succeeded
+    const newUser = await User.create({
+      firstName,
+      lastName,
+      email: email.toLowerCase(),
+      phoneNumber,
+      passwordHash,
+      role: "customer", // Defaults to customer on direct signup
+    });
+
+    // Wipe Redis cache record
+    await redis.del(redisKey);
+
+    return newUser;
+  }
+
+  // ==========================================
+  // LOGIN WORKFLOW
+  // ==========================================
+
+  async initiateLogin(email, password) {
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+      isActive: true,
+    });
+    if (!user) {
+      throw new UnauthorizedError({
+        message: "Invalid email or password credentials.",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new UnauthorizedError({
+        message: "Invalid email or password credentials.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:auth:${user._id}`;
+
+    // Cache OTP challenges tightly under user ID reference
+    await redis.setex(redisKey, this._otpTtL, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "2-Step Verification Login Request",
+      "A login attempt was initiated for your profile. Input this security code to verify your session identity.",
+    );
+
+    return { userId: user._id, message: "2FA checkpoint reached. Code sent." };
+  }
+
+  async verifyLogin(userId, submittedOtp, res) {
+    const redisKey = `pending:auth:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message: "Login verification session expired. Please re-authenticate.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid security verification code.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({
+        message: "Account profile records non-existent.",
+      });
+    }
+
+    if (!user.isActive) {
+      throw new ForbiddenError({
+        message: "Account access restrictions active. Contact support.",
+      });
+    }
+
+    // Issue Token Payload matching AuthMiddleware rules down-stream
+    const tokenPayload = { id: user._id, email: user.email, role: user.role };
+    const token = jwt.sign(tokenPayload, this._jwtSecret, { expiresIn: "7d" });
+
+    // Dynmically determine identity token names based on system scopes
+    const { tokenName, options } = this._getCookieConfig(user.role);
+    res.cookie(tokenName, token, options);
+
+    // Clean verification state
+    await redis.del(redisKey);
+
+    return { user, tokenName };
+  }
+
+  // ==========================================
+  // FORGOT / RESET PASSWORD WORKFLOW
+  // ==========================================
+
+  async initiatePasswordReset(email) {
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+      isActive: true,
+    });
+    if (!user) {
+      // Security abstract: avoid leaking existence mapping, but return safely
+      return {
+        message: "If the account exists, a reset code has been dispatched.",
+      };
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:reset:${user._id}`;
+    await redis.setex(redisKey, this._otpTtL, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Password Reset Code Verification",
+      "We received a request to update your password profile security credentials. Use this authorization code to proceed.",
+    );
+
+    return {
+      userId: user._id,
+      message: "If the account exists, a reset code has been dispatched.",
+    };
+  }
+
+  async completePasswordReset(userId, submittedOtp, newPassword) {
+    const redisKey = `pending:reset:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message: "Password authorization pipeline token expired.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid password modification token.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { passwordHash },
+      { new: true },
+    );
+
+    await redis.del(redisKey);
+    return {
+      success: true,
+      message: "Security parameters successfully reset.",
+    };
+  }
+
+  // ==========================================
+  // PROTECTED UTILITY WORKFLOWS
+  // ==========================================
+
+  // ==========================================
+  // PASSWORD CHANGE WORKFLOW (Via Email OTP)
+  // ==========================================
+
+  // Step 1: Verify current password -> Dispatch OTP to registered email
+  async initiatePasswordChange(userId, currentPassword) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.passwordHash,
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedError({
+        message: "Invalid current password provided.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:password-change:${userId}`;
+    await redis.setex(redisKey, this._otpTtL, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Authorize Password Change Request",
+      "A request was made to change your account password. Use this verification code to authorize the change. Valid for 5 minutes.",
+    );
+
+    return {
+      message:
+        "Security verification code sent to your registered email address.",
+    };
+  }
+
+  // Step 2: Verify OTP & update password in MongoDB
+  async confirmPasswordChange(userId, submittedOtp, newPassword) {
+    const redisKey = `pending:password-change:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message: "Password reset session expired. Please request a new code.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification code provided.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    // Hash new password & save document
+    user.passwordHash = await bcrypt.hash(newPassword, 12);
+    await user.save();
+
+    // Clear Redis session
+    await redis.del(redisKey);
+
+    return { message: "Password updated successfully." };
+  }
+
+  async logout(userRole, res) {
+    const { tokenName, options } = this._getCookieConfig(userRole);
+
+    res.clearCookie(tokenName, { ...options, maxAge: 0 });
+    return { success: true };
+  }
+
+  async softDeleteAccount(userId, res, userRole) {
+    const user = await User.findByIdAndUpdate(userId, { isActive: false });
+    if (!user) {
+      throw new NotFoundError({ message: "Target user non-existent." });
+    }
+
+    await this.logout(userRole, res);
+    return { success: true, message: "Account successfully closed." };
+  }
+
+
+  async initiateEmailChange(userId, currentPassword) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.passwordHash,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedError({
+        message: "Invalid current password provided.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:email-change:step1:${userId}`;
+
+    // Cache OTP in Redis for 5 minutes
+    await redis.setex(redisKey, this._otpTtL, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Authorize Email Change Request",
+      "A request was initiated to update your account email. Use this security code to verify ownership of your current email address.",
+    );
+
+    return {
+      message:
+        "Security authorization code sent to your current email address.",
+    };
+  }
+
+  // Step 2: Verify current email OTP -> issue temporary session authorization token
+  async verifyExistingEmailOtp(userId, submittedOtp) {
+    const redisKey = `pending:email-change:step1:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message:
+          "Email verification session expired. Please restart the process.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification code provided.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    // Clear step 1 state
+    await redis.del(redisKey);
+
+    // Generate temporary access token for step 3 & 4 (Valid for 10 minutes)
+    const emailChangeToken = crypto.randomBytes(32).toString("hex");
+    const tokenKey = `pending:email-change:authorized:${userId}`;
+    await redis.setex(tokenKey, 600, emailChangeToken);
+
+    return { emailChangeToken };
+  }
+
+  // Step 3: Check new email uniqueness & send OTP to target email
+  async requestNewEmailVerification(userId, emailChangeToken, newEmail) {
+    const tokenKey = `pending:email-change:authorized:${userId}`;
+    const storedToken = await redis.get(tokenKey);
+
+    if (!storedToken || storedToken !== emailChangeToken) {
+      throw new UnauthorizedError({
+        message: "Unauthorized or expired email modification session.",
+      });
+    }
+
+    // Check if target email is already claimed by another user
+    const existingUser = await User.findOne({ email: newEmail.toLowerCase() });
+    if (existingUser) {
+      throw new ConflictError({
+        message: "An account with this target email address already exists.",
+      });
+    }
+
+    const newOtp = generateOTP();
+    const redisKey = `pending:email-change:step2:${userId}`;
+    const payload = JSON.stringify({
+      newEmail: newEmail.toLowerCase(),
+      otp: newOtp,
+    });
+
+    await redis.setex(redisKey, this._otpTtL, payload);
+
+    await MailService.sendEmail(
+      newEmail,
+      newOtp,
+      "Verify Your New Email Address",
+      "Please use this code to confirm and link your new email address to your account.",
+    );
+
+    return { message: "Verification code sent to your new email address." };
+  }
+
+  // Step 4: Verify new email OTP & commit update to MongoDB
+  async confirmNewEmailUpdate(
+    userId,
+    emailChangeToken,
+    newEmail,
+    submittedOtp,
+  ) {
+    const tokenKey = `pending:email-change:authorized:${userId}`;
+    const storedToken = await redis.get(tokenKey);
+
+    if (!storedToken || storedToken !== emailChangeToken) {
+      throw new UnauthorizedError({
+        message: "Unauthorized or expired email modification session.",
+      });
+    }
+
+    const step2Key = `pending:email-change:step2:${userId}`;
+    const cachedData = await redis.get(step2Key);
+
+    if (!cachedData) {
+      throw new ExpiredSessionError({
+        message:
+          "New email verification session expired. Please request a new code.",
+      });
+    }
+
+    const { newEmail: targetEmail, otp: storedOtp } = JSON.parse(cachedData);
+
+    if (targetEmail !== newEmail.toLowerCase() || storedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification details or target email mismatch.",
+      });
+    }
+
+    // Persist updated email
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { email: newEmail.toLowerCase() },
+      { new: true },
+    ).select("-passwordHash");
+
+    // Clean up Redis keys
+    await redis.del([tokenKey, step2Key]);
+
+    return updatedUser;
+  }
+
+### user routes : 
+
+import express from "express";
+import { UserController } from "#controllers";
+import { UserValidator } from "#validators";
+import { ValidateMiddleware, AuthMiddleware } from "#middlewares";
+
+export const userRouter = express.Router();
+
+// ----------------------------------------------------
+// Public Authentication Pipeline (Guarded by Joi Body Rules)
+// ----------------------------------------------------
+
+// Step 1: Initiate registration (Dispatches 2FA OTP to Redis + Email)
+userRouter.post(
+  "/signup/initiate",
+  ValidateMiddleware.body(UserValidator.initiateSignup),
+  UserController.initiateSignup,
+);
+
+// Step 2: Finalize registration (Verifies OTP and commits user to MongoDB)
+userRouter.post(
+  "/signup/verify",
+  ValidateMiddleware.body(UserValidator.verifySignup),
+  UserController.verifySignup,
+);
+
+// Step 1: Initiate authentication (Validates credentials, sends login OTP)
+userRouter.post(
+  "/login/initiate",
+  ValidateMiddleware.body(UserValidator.loginInitiate),
+  UserController.initiateLogin,
+);
+
+// Step 2: Finalize authentication (Verifies OTP and issues secure httpOnly role cookie)
+userRouter.post(
+  "/login/verify",
+  ValidateMiddleware.body(UserValidator.loginVerify),
+  UserController.verifyLogin,
+);
+
+// Step 1: Request account recovery (Dispatches reset OTP code)
+userRouter.post(
+  "/forgot-password",
+  ValidateMiddleware.body(UserValidator.forgotPassword),
+  UserController.initiatePasswordReset,
+);
+
+// Step 2: Conclude account recovery (Validates state and rewrites passwordHash)
+userRouter.post(
+  "/reset-password",
+  ValidateMiddleware.body(UserValidator.resetPassword),
+  UserController.completePasswordReset,
+);
+
+// ----------------------------------------------------
+// Protected User Operations (Requires Active Role Whitelist Session)
+// ----------------------------------------------------
+
+// Terminate session (Accessible to any authenticated user tier)
+userRouter.post(
+  "/logout",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  UserController.logout,
+);
+
+// Intercept profile updates (Validates changing parameters)
+userRouter.patch(
+  "/account/change-password",
+  AuthMiddleware.authorize(["customer"]),
+  ValidateMiddleware.body(UserValidator.changePassword),
+  UserController.changePassword,
+);
+
+
+userRouter.delete(
+  "/account",
+  AuthMiddleware.authorize(["customer"]),
+  UserController.deleteAccount,
+);
+
+
+// Step 1: Validate password & send OTP to current email
+userRouter.post(
+  "/account/email/change-initiate",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.initiateEmailChange),
+  UserController.initiateEmailChange,
+);
+
+// Step 2: Validate OTP from current email & receive state token
+userRouter.post(
+  "/account/email/verify-current-otp",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.verifyExistingEmailOtp),
+  UserController.verifyExistingEmailOtp,
+);
+
+// Step 3: Validate state token & send OTP to new email
+userRouter.post(
+  "/account/email/request-new-otp",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.requestNewEmailVerification),
+  UserController.requestNewEmailVerification,
+);
+
+// Step 4: Validate new email OTP & commit update
+userRouter.post(
+  "/account/email/confirm-update",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.confirmNewEmailUpdate),
+  UserController.confirmNewEmailUpdate,
+);
+
+
+// Step 1: Validate current password -> Send OTP to email
+userRouter.post(
+  "/account/password/change-initiate",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.initiatePasswordChange),
+  UserController.initiatePasswordChange,
+);
+
+// Step 2: Validate OTP + new password -> Commit new password
+userRouter.post(
+  "/account/password/change-confirm",
+  AuthMiddleware.authorize(["customer", "seller", "admin"]),
+  ValidateMiddleware.body(UserValidator.confirmPasswordChange),
+  UserController.confirmPasswordChange,
+);
+
+
+import nodemailer from "nodemailer";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { env } from "#config";
+import { logger } from "#utils";
+import { MailServiceError, MailTemplateError } from "#errors";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export class MailServiceClass {
+  _transporter = nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_SECURE,
+    auth: {
+      user: env.SMTP_USER,
+      pass: env.SMTP_PASS,
+    },
+  });
+
+  _fromAddress = env.SMTP_FROM;
+  _templatePath = path.join(__dirname, "../templates/email-template.html");
+  _cachedHtml = null;
+
+  _loadTemplate = async () => {
+    if (this._cachedHtml) return this._cachedHtml;
+    try {
+      this._cachedHtml = await fs.readFile(this._templatePath, "utf8");
+      return this._cachedHtml;
+    } catch (error) {
+      throw new MailTemplateError({
+        message: "Critical: Mail infrastructure layout missing.",
+        errors: [error.message],
+      });
+    }
+  };
+
+  sendEmail = async (to, otp, subject, purposeText) => {
+    const rawTemplate = await this._loadTemplate();
+
+    const personalizedHtml = rawTemplate
+      .replace("{{OTP}}", otp)
+      .replace("{{PURPOSE_TEXT}}", purposeText);
+
+    try {
+      const deliveryReceipt = await this._transporter.sendMail({
+        from: this._fromAddress,
+        to,
+        subject: subject,
+        html: personalizedHtml,
+      });
+
+      logger.info(
+        `✅ Outbound email systematically delivered to: ${to} [ID: ${deliveryReceipt.messageId}]`,
+      );
+
+      return true;
+    } catch (error) {
+      throw new MailServiceError({
+        message:
+          "Unable to complete security authentication message transmission.",
+        errors: [error.message],
+      });
+    }
+  };
+}
+
+export const MailService = new MailServiceClass();
+
+### email-template.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Marketplace</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding: 5% 2%;">
+    <tr>
+      <td align="center">
+        <!--[if mso]>
+        <table width="600" cellpadding="0" cellspacing="0" style="background: #111827; border-radius: 12px;">
+        <tr><td>
+        <![endif]-->
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #111827; border-radius: 12px; overflow: hidden; box-shadow: 0 4vw 15vw rgba(0,0,0,0.5);">
+
+          <!-- Premium Dark Gradient Header -->
+          <tr>
+            <td align="center" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%); color: #ffffff; padding: 6% 4%; border-bottom: 1px solid #334155;">
+              <h1 style="margin: 0; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; color: #ffffff;">Global Marketplace</h1>
+              <p style="margin: 1.5% 0 0 0; font-size: 1rem; opacity: 0.85; font-weight: 400; color: #93c5fd;">Secure Account Verification</p>
+            </td>
+          </tr>
+
+          <!-- Main Body Content -->
+          <tr>
+            <td style="padding: 8% 6%;">
+              <h2 style="margin-top: 0; margin-bottom: 4%; color: #f8fafc; font-size: 1.35rem; font-weight: 600;">Hello,</h2>
+
+              <p style="color: #cbd5e1; line-height: 1.6; font-size: 1rem; margin-bottom: 4%;">
+                {{PURPOSE_TEXT}}
+              </p>
+
+              <p style="color: #cbd5e1; line-height: 1.6; font-size: 1rem; margin-bottom: 6%;">
+                Your One-Time Password (OTP) is:
+              </p>
+
+              <!-- Neon Accent Dark OTP Container -->
+              <div style="margin: 6% auto; width: fit-content; background: #1e293b; border: 2px dashed #3b82f6; border-radius: 8px; padding: 4% 8%; font-size: 2rem; font-weight: 700; letter-spacing: 0.25em; color: #60a5fa; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 2vw rgba(59, 130, 246, 0.15);">
+                {{OTP}}
+              </div>
+
+              <p style="color: #94a3b8; line-height: 1.6; font-size: 0.95rem; margin-bottom: 3%;">
+                This OTP is valid for <strong style="color: #f8fafc;">5 minutes</strong>.
+              </p>
+
+              <p style="color: #94a3b8; line-height: 1.6; font-size: 0.95rem; margin-bottom: 0;">
+                If you didn't request this verification, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Muted Dark Footer -->
+          <tr>
+            <td align="center" style="background: #0f172a; padding: 4% 6%; color: #64748b; font-size: 0.8rem; border-top: 1px solid #1e293b;">
+              <p style="margin: 0 0 1% 0;">&copy; 2026 Global Marketplace</p>
+              <p style="margin: 0;">This is an automated email. Please do not reply.</p>
+            </td>
+          </tr>
+
+        </table>
+        <!--[if mso]>
+        </td></tr>
+        </table>
+        <![endif]-->
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+--- end ---
 ```
 
 ======================================================================
-FILE: .dockerignore
+FILE: index.js
 ======================================================================
+```javascript
+// index.js
+import { env } from "#config";
+import { startServer } from "#server";
+
+startServer({
+  port: env.PORT,
+  appName: env.APP_NAME,
+  appUrl: env.APP_URL,
+  databaseUrl: env.MONGO_URI,
+});
 ```
-node_modules
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
-.git
-.gitignore
-.github
+======================================================================
+FILE: package.json
+======================================================================
+```json
+{
+  "name": "todo_app",
+  "version": "1.0.0",
+  "description": "this is a simple dummy todo app for testing frontend and backend deployment",
+  "homepage": "https://github.com/niladri-sarkhel/todo_app_backend#readme",
+  "bugs": {
+    "url": "https://github.com/niladri-sarkhel/todo_app_backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/niladri-sarkhel/todo_app_backend.git"
+  },
+  "license": "ISC",
+  "author": "niladri-sarkhel",
+  "type": "module",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "imports": {
+    "#config": "./src/config/index.js",
+    "#contracts": "./src/contracts/index.js",
+    "#controllers": "./src/controllers/index.js",
+    "#errors": "./src/errors/index.js",
+    "#middlewares": "./src/middlewares/index.js",
+    "#models": "./src/models/index.js",
+    "#schemas": "./src/schemas/index.js",
+    "#routes": "./src/routes/index.js",
+    "#services": "./src/services/index.js",
+    "#utils": "./src/utils/index.js",
+    "#validators": "./src/validators/index.js",
+    "#app": "./src/app.js",
+    "#server": "./src/server.js"
+  },
+  "scripts": {
+    "nil": "echo hello-world",
+    "dev": "nodemon ./index.js",
+    "start": "node ./index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "ioredis": "^6.0.0",
+    "joi": "^18.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.2",
+    "nodemailer": "^9.0.5",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.10"
+  }
+}
+```
 
-.env
-.env.*
-!.env.example
+======================================================================
+FILE: scripts/pack-context.js
+======================================================================
+```javascript
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-Dockerfile.dev
-compose.yml
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-coverage
-.nyc_output
+// Project root directory (one level up from scripts/)
+const ROOT_DIR = path.resolve(__dirname, "..");
 
-.vscode
-.idea
+// Save output directly inside the scripts/ folder
+const OUTPUT_FILE = path.join(__dirname, "project_context.txt");
 
-.DS_Store
-*.log
+// Files/folders to strictly ignore
+const IGNORE_NAMES = new Set([
+  "node_modules",
+  ".git",
+  "dist",
+  "build",
+  "coverage",
+  ".DS_Store",
+  "thumbs.db",
+  "package-lock.json",
+  "yarn.lock",
+  "pnpm-lock.yaml",
+  "project_context.txt",
+  ".env", // Ignored for security; .env.example will still be included
+  "mongo-keyfile", // Ignored for security
+]);
+
+// File extensions to ignore (binary/media/keys)
+const IGNORE_EXTENSIONS = new Set([
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".ico",
+  ".svg",
+  ".webp",
+  ".pdf",
+  ".zip",
+  ".tar",
+  ".gz",
+  ".7z",
+  ".exe",
+  ".dll",
+  ".so",
+  ".dylib",
+  ".key",
+  ".pem",
+  ".crt",
+  ".db",
+  ".sqlite",
+]);
+
+// Language mappings for Markdown code blocks
+const EXTENSION_LANG_MAP = {
+  ".js": "javascript",
+  ".mjs": "javascript",
+  ".cjs": "javascript",
+  ".jsx": "jsx",
+  ".ts": "typescript",
+  ".tsx": "tsx",
+  ".json": "json",
+  ".html": "html",
+  ".css": "css",
+  ".scss": "scss",
+  ".md": "markdown",
+  ".yml": "yaml",
+  ".yaml": "yaml",
+  ".sh": "bash",
+  ".bash": "bash",
+  ".env": "dotenv",
+  ".example": "dotenv",
+  ".txt": "text",
+  ".sql": "sql",
+};
+
+/**
+ * Checks if a file or directory should be ignored.
+ */
+function shouldIgnore(itemName) {
+  if (IGNORE_NAMES.has(itemName)) return true;
+
+  const ext = path.extname(itemName).toLowerCase();
+  if (IGNORE_EXTENSIONS.has(ext)) return true;
+
+  // Ignore arbitrary hidden files, but allow critical configs
+  if (
+    itemName.startsWith(".") &&
+    !itemName.startsWith(".env") &&
+    !itemName.startsWith(".github") &&
+    !itemName.startsWith(".gitignore") &&
+    !itemName.startsWith(".dockerignore")
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Determines code block language tag for syntax highlighting.
+ */
+function getLanguageTag(filePath) {
+  const fileName = path.basename(filePath).toLowerCase();
+
+  if (fileName.includes("dockerfile")) return "dockerfile";
+  if (fileName === ".gitignore" || fileName === ".dockerignore")
+    return "ignorefile";
+
+  const ext = path.extname(filePath).toLowerCase();
+  return EXTENSION_LANG_MAP[ext] || "";
+}
+
+/**
+ * Generates an ASCII tree view starting from the root directory.
+ */
+function generateTree(dirPath, prefix = "") {
+  let tree = "";
+  if (!fs.existsSync(dirPath)) return tree;
+
+  const items = fs
+    .readdirSync(dirPath)
+    .filter((item) => !shouldIgnore(item))
+    .sort((a, b) => {
+      // Sort directories first, then files alphabetically
+      const aIsDir = fs.statSync(path.join(dirPath, a)).isDirectory();
+      const bIsDir = fs.statSync(path.join(dirPath, b)).isDirectory();
+      if (aIsDir && !bIsDir) return -1;
+      if (!aIsDir && bIsDir) return 1;
+      return a.localeCompare(b);
+    });
+
+  items.forEach((item, index) => {
+    const isLast = index === items.length - 1;
+    const connector = isLast ? "└── " : "├── ";
+    const fullPath = path.join(dirPath, item);
+    const isDir = fs.statSync(fullPath).isDirectory();
+
+    tree += `${prefix}${connector}${item}${isDir ? "/" : ""}\n`;
+
+    if (isDir) {
+      const childPrefix = prefix + (isLast ? "    " : "│   ");
+      tree += generateTree(fullPath, childPrefix);
+    }
+  });
+
+  return tree;
+}
+
+/**
+ * Recursively collects all non-ignored file paths.
+ */
+function collectFiles(dirPath) {
+  let files = [];
+  if (!fs.existsSync(dirPath)) return files;
+
+  const items = fs.readdirSync(dirPath);
+
+  for (const item of items) {
+    if (shouldIgnore(item)) continue;
+
+    const fullPath = path.join(dirPath, item);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      files = files.concat(collectFiles(fullPath));
+    } else if (stat.isFile()) {
+      files.push(fullPath);
+    }
+  }
+
+  return files;
+}
+
+/**
+ * Packs the repository structure and contents into a single file.
+ */
+function packContext() {
+  let output =
+    "======================================================================\n";
+  output += "PROJECT ARCHITECTURE TREE\n";
+  output +=
+    "======================================================================\n\n";
+
+  // 1. Root-level tree
+  output += ".\n";
+  output += generateTree(ROOT_DIR);
+  output += "\n";
+
+  // 2. Gather file contents
+  const allFiles = collectFiles(ROOT_DIR).sort();
+  let packedCount = 0;
+
+  output +=
+    "======================================================================\n";
+  output += "FILE CONTENTS\n";
+  output +=
+    "======================================================================\n\n";
+
+  for (const filePath of allFiles) {
+    const relativePath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
+    const lang = getLanguageTag(filePath);
+
+    try {
+      const content = fs.readFileSync(filePath, "utf-8");
+      output +=
+        "======================================================================\n";
+      output += `FILE: ${relativePath}\n`;
+      output +=
+        "======================================================================\n";
+      output += `\`\`\`${lang}\n`;
+      output += content.endsWith("\n") ? content : content + "\n";
+      output += "```\n\n";
+      packedCount++;
+    } catch (err) {
+      output += `/* Error reading file ${relativePath}: ${err.message} */\n\n`;
+    }
+  }
+
+  fs.writeFileSync(OUTPUT_FILE, output, "utf-8");
+  console.log(` Done! Packed ${packedCount} files into ${OUTPUT_FILE}`);
+}
+
+packContext();
 ```
 
 ======================================================================
 FILE: src/app.js
 ======================================================================
 ```javascript
+import express from "express";
+import cookieParser from "cookie-parser";
+import cors from "cors"; // 👈 Import here
 
+import { env } from "#config";
+import { apiV1Router } from "#routes";
+import { handleReqErrors, NotFoundError } from "#errors";
+
+export const app = express();
+app
+  .use(express.json())
+  .use(express.urlencoded({ extended: true }))
+  .use(cookieParser())
+  .use(cors())
+  .use(env.API_PREFIX, apiV1Router)
+  .use((req, _res, next) => {
+    next(
+      new NotFoundError({
+        message: `Route [${req.method}] ${req.path} not found`,
+      }),
+    );
+  })
+  .use(handleReqErrors);
 ```
 
 ======================================================================
@@ -648,41 +2104,1125 @@ FILE: src/config/index.js
 export * from "./env.js";
 export * from "./mongodb.js";
 export * from "./redis.js";
+export * from "./consts.js";
 ```
 
 ======================================================================
 FILE: src/config/mongodb.js
 ======================================================================
 ```javascript
+import mongoose from "mongoose";
 
+import { logger } from "#utils";
+
+mongoose.connection.on("connected", () => {
+  logger.info("MongoDB connected");
+});
+
+mongoose.connection.on("disconnected", () => {
+  logger.warn("MongoDB disconnected");
+});
+
+mongoose.connection.on("error", (error) => {
+  logger.error({ err: error }, "MongoDB connection error");
+});
+
+export const connectMongoDB = async (mongodbURL) => {
+  try {
+    logger.info("Connecting to MongoDB...");
+
+    await mongoose.connect(mongodbURL);
+
+    return mongoose.connection;
+  } catch (error) {
+    logger.fatal({ err: error }, "Failed to connect to MongoDB");
+
+    throw error;
+  }
+};
+
+export const disconnectMongoDB = async () => {
+  try {
+    await mongoose.disconnect();
+    logger.info("MongoDB connection closed");
+  } catch (error) {
+    logger.error({ err: error }, "Failed to disconnect MongoDB");
+
+    throw error;
+  }
+};
 ```
 
 ======================================================================
 FILE: src/config/redis.js
 ======================================================================
 ```javascript
+import Redis from "ioredis";
+import { env } from "#config";
+import { logger } from "#utils"; // Reusing your logger
 
+const redisConfig = {
+  host: env.REDIS_HOST,
+  port: env.REDIS_PORT,
+  password: env.REDIS_PASSWORD,
+  maxRetriesPerRequest: null, // Essential for handling reconnections cleanly
+};
+
+// Initialize the client
+export const redis = new Redis(redisConfig);
+
+// Event Listeners for infrastructure visibility
+redis.on("connect", () => {
+  logger.info("⚡ Redis cluster connection successfully initialized.");
+});
+
+redis.on("error", (error) => {
+  logger.error("❌ Redis critical transport error:", error);
+});
+```
+
+======================================================================
+FILE: src/contracts/auth.contract.js
+======================================================================
+```javascript
+import Joi from "joi";
+import {
+  emailSchema,
+  passwordSchema,
+  otpSchema,
+  objectIdSchema,
+  baseSuccessResSchema,
+} from "./common.contract.js";
+
+// Signup Workflows
+export const initiateSignupContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      email: emailSchema,
+      password: passwordSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+export const verifySignupContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      email: emailSchema,
+      otp: otpSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+      userId: objectIdSchema,
+      email: emailSchema,
+    }),
+  ),
+});
+
+// Authentication Workflows
+export const initiateLoginContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      email: emailSchema,
+      password: passwordSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      userId: objectIdSchema,
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+export const verifyLoginContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      userId: objectIdSchema,
+      otp: otpSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+      profile: Joi.object({
+        id: objectIdSchema,
+        email: emailSchema,
+      }).required(),
+      sessionCookieName: Joi.string().required(),
+    }),
+  ),
+});
+
+// Password Recovery Workflows
+export const initiatePasswordResetContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      email: emailSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      userId: objectIdSchema.optional(),
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+export const completePasswordResetContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      userId: objectIdSchema,
+      otp: otpSchema,
+      newPassword: passwordSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+    }),
+  ),
+});
+```
+
+======================================================================
+FILE: src/contracts/common.contract.js
+======================================================================
+```javascript
+import Joi from "joi";
+
+// Common Reusable Field Schemas
+export const emailSchema = Joi.string().email().lowercase().trim().required();
+export const passwordSchema = Joi.string().min(6).required();
+export const otpSchema = Joi.string().length(6).required();
+export const tokenSchema = Joi.string().hex().length(64).required();
+export const objectIdSchema = Joi.string().hex().length(24).required();
+
+// Unified API Response Schema Builder
+export const baseSuccessResSchema = (
+  dataSchema = Joi.any().valid(null),
+  extraKeys = {},
+) =>
+  Joi.object({
+    success: Joi.boolean().valid(true).required(),
+    data: dataSchema,
+    error: Joi.any().valid(null).required(),
+    ...extraKeys,
+  });
+```
+
+======================================================================
+FILE: src/contracts/index.js
+======================================================================
+```javascript
+export * from "./test.contract.js";
+export * from "./common.contract.js";
+export * from "./auth.contract.js";
+export * from "./user.contract.js";
+```
+
+======================================================================
+FILE: src/contracts/test.contract.js
+======================================================================
+```javascript
+import Joi from "joi";
+
+export const pingContract = Object.freeze({
+  resSchema: Joi.object({
+    status: Joi.string().valid("success").required(),
+    message: Joi.string().valid("🏓 pong!").required(),
+    timestamp: Joi.string().isoDate().required(),
+  }),
+});
+
+export const echoContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object().required(),
+    headers: Joi.object().unknown(true),
+    query: Joi.object().unknown(false),
+    params: Joi.object().unknown(false),
+  }),
+
+  resSchema: Joi.object({
+    status: Joi.string().valid("success").required(),
+    message: Joi.string().valid("Data received successfully").required(),
+    receivedBody: Joi.object().required(),
+    receivedHeaders: Joi.object().required(),
+    timestamp: Joi.string().isoDate().required(),
+  }),
+});
+
+export const asyncTestContract = Object.freeze({
+  resSchema: Joi.object({
+    status: Joi.string().valid("success").required(),
+    message: Joi.string()
+      .valid("Async event loop is responding correctly.")
+      .required(),
+    timestamp: Joi.string().isoDate().required(),
+  }),
+});
+```
+
+======================================================================
+FILE: src/contracts/user.contract.js
+======================================================================
+```javascript
+import Joi from "joi";
+import {
+  emailSchema,
+  passwordSchema,
+  otpSchema,
+  tokenSchema,
+  objectIdSchema,
+  baseSuccessResSchema,
+} from "./common.contract.js";
+
+// Session & Account Offboarding
+export const logoutContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({}).unknown(false),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+export const initiateDeleteAccountContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      currentPassword: passwordSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+export const confirmDeleteAccountContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      otp: otpSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+// Password Change Workflows
+export const initiatePasswordChangeContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      currentPassword: passwordSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+export const confirmPasswordChangeContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      otp: otpSchema,
+      newPassword: passwordSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+// Email Change Multi-Step Workflows
+export const initiateEmailChangeContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      currentPassword: passwordSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+export const verifyExistingEmailOtpContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      otp: otpSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      emailChangeToken: tokenSchema,
+    }),
+    { message: Joi.string().required() },
+  ),
+});
+
+export const requestNewEmailVerificationContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      emailChangeToken: tokenSchema,
+      newEmail: emailSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      message: Joi.string().required(),
+    }),
+  ),
+});
+
+export const confirmNewEmailUpdateContract = Object.freeze({
+  reqSchema: Joi.object({
+    body: Joi.object({
+      emailChangeToken: tokenSchema,
+      newEmail: emailSchema,
+      otp: otpSchema,
+    }).required(),
+  }),
+  resSchema: baseSuccessResSchema(
+    Joi.object({
+      _id: objectIdSchema,
+      email: emailSchema,
+      createdAt: Joi.date().iso().optional(),
+      updatedAt: Joi.date().iso().optional(),
+    }),
+    { message: Joi.string().required() },
+  ),
+});
+```
+
+======================================================================
+FILE: src/controllers/auth.controller.js
+======================================================================
+```javascript
+import { AuthService } from "#services";
+
+export class AuthControllerClass {
+  initiateSignup = async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
+
+      const result = await AuthService.initiateSignup({ email, password });
+
+      return res.status(202).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifySignup = async (req, res, next) => {
+    try {
+      const { email, otp } = req.body;
+
+      const newUser = await AuthService.verifySignup(email, otp);
+
+      return res.status(201).json({
+        success: true,
+        data: {
+          message: "Account successfully provisioned.",
+          userId: newUser._id,
+          email: newUser.email,
+        },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiateLogin = async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
+
+      const result = await AuthService.initiateLogin(email, password);
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifyLogin = async (req, res, next) => {
+    try {
+      const { userId, otp } = req.body;
+
+      const { user, tokenName } = await AuthService.verifyLogin(
+        userId,
+        otp,
+        res,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: "Authentication successful.",
+          profile: {
+            id: user._id,
+            email: user.email,
+          },
+          sessionCookieName: tokenName,
+        },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiatePasswordReset = async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      const result = await AuthService.initiatePasswordReset(email);
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  completePasswordReset = async (req, res, next) => {
+    try {
+      const { userId, otp, newPassword } = req.body;
+      const result = await AuthService.completePasswordReset(
+        userId,
+        otp,
+        newPassword,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+export const AuthController = new AuthControllerClass();
 ```
 
 ======================================================================
 FILE: src/controllers/index.js
 ======================================================================
 ```javascript
+export * from "./test.controller.js";
+export * from "./auth.controller.js";
+export * from "./user.controller.js";
+```
 
+======================================================================
+FILE: src/controllers/test.controller.js
+======================================================================
+```javascript
+import { logger } from "#utils";
+
+export const testController = {
+  // 1. Basic connection ping
+  ping: (req, res) => {
+    logger.info(
+      { controller: "testController", func: "ping" },
+      "Ping check hit",
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: "🏓 pong!",
+      timestamp: new Date().toISOString(),
+    });
+  },
+
+  // 2. Request body & headers echo
+  echo: (req, res) => {
+    logger.info(
+      { controller: "testController", func: "echo" },
+      "Echo check hit",
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: "Data received successfully",
+      receivedBody: req.body,
+      receivedHeaders: req.headers,
+      timestamp: new Date().toISOString(),
+    });
+  },
+
+  // 3. Async event loop test
+  asyncTest: async (req, res, next) => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      logger.info(
+        { controller: "testController", func: "asyncTest" },
+        "Async check passed",
+      );
+
+      return res.status(200).json({
+        status: "success",
+        message: "Async event loop is responding correctly.",
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      return next(error);
+    }
+  },
+};
+```
+
+======================================================================
+FILE: src/controllers/user.controller.js
+======================================================================
+```javascript
+import { UserService, AuthService } from "#services";
+
+export class UserControllerClass {
+  logout = async (req, res, next) => {
+    try {
+      await AuthService.logout(res);
+
+      return res.status(200).json({
+        success: true,
+        data: { message: "Session terminated successfully." },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Step 1: Verify current password & send OTP
+  initiateDeleteAccount = async (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const { currentPassword } = req.body;
+
+      await UserService.initiateDeleteAccount(userId, currentPassword);
+
+      return res.status(200).json({
+        success: true,
+        data: { message: "Verification OTP sent to your registered email." },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // Step 2: Verify OTP & execute permanent account deletion
+  confirmDeleteAccount = async (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const { otp } = req.body;
+
+      await UserService.confirmDeleteAccount(userId, otp, res);
+
+      return res.status(200).json({
+        success: true,
+        data: { message: "Account deleted successfully." },
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiatePasswordChange = async (req, res, next) => {
+    try {
+      const result = await UserService.initiatePasswordChange(
+        req.user.id,
+        req.body.currentPassword,
+      );
+      return res.status(200).json({ success: true, data: result, error: null });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  confirmPasswordChange = async (req, res, next) => {
+    try {
+      const { otp, newPassword } = req.body;
+      const result = await UserService.confirmPasswordChange(
+        req.user.id,
+        otp,
+        newPassword,
+      );
+      return res.status(200).json({
+        success: true,
+        message: result.message,
+        data: null,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  initiateEmailChange = async (req, res, next) => {
+    try {
+      const result = await UserService.initiateEmailChange(
+        req.user.id,
+        req.body.currentPassword,
+      );
+      return res.status(200).json({ success: true, data: result, error: null });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifyExistingEmailOtp = async (req, res, next) => {
+    try {
+      const result = await UserService.verifyExistingEmailOtp(
+        req.user.id,
+        req.body.otp,
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Current email verified. You may now enter your new email.",
+        data: result,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  requestNewEmailVerification = async (req, res, next) => {
+    try {
+      const { emailChangeToken, newEmail } = req.body;
+      const result = await UserService.requestNewEmailVerification(
+        req.user.id,
+        emailChangeToken,
+        newEmail,
+      );
+      return res.status(200).json({ success: true, data: result, error: null });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  confirmNewEmailUpdate = async (req, res, next) => {
+    try {
+      const { emailChangeToken, newEmail, otp } = req.body;
+      const updatedUser = await UserService.confirmNewEmailUpdate(
+        req.user.id,
+        emailChangeToken,
+        newEmail,
+        otp,
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Email address updated successfully.",
+        data: updatedUser,
+        error: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+export const UserController = new UserControllerClass();
 ```
 
 ======================================================================
 FILE: src/errors/index.js
 ======================================================================
 ```javascript
+import { logger } from "#utils";
 
+function extractOrigin(stack) {
+  if (typeof stack !== "string") return null;
+
+  const lines = stack.split("\n");
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("at ")) continue;
+
+    if (
+      trimmed.includes("/errors/") ||
+      trimmed.includes("\\errors\\") ||
+      trimmed.includes("node:internal")
+    ) {
+      continue;
+    }
+
+    return trimmed;
+  }
+
+  return lines[1]?.trim() ?? null;
+}
+
+export class AppError extends Error {
+  constructor({ message, statusCode = 500, errors = [], stack = null }) {
+    super(message);
+
+    this.name = this.constructor.name;
+    this.statusCode = statusCode;
+    this.errors = Array.isArray(errors) ? errors : [errors];
+
+    if (stack) {
+      this.stack = stack;
+    } else {
+      Error.captureStackTrace(this, this.constructor);
+    }
+
+    this.origin = extractOrigin(this.stack);
+  }
+}
+
+export class BadRequestError extends AppError {
+  constructor({
+    message = "Bad request payload",
+    errors = [],
+    stack = null,
+  } = {}) {
+    super({ message, statusCode: 400, errors, stack });
+  }
+}
+
+export class UnauthorizedError extends AppError {
+  constructor({
+    message = "Unauthorized access",
+    errors = [],
+    stack = null,
+  } = {}) {
+    super({ message, statusCode: 401, errors, stack });
+  }
+}
+
+export class ForbiddenError extends AppError {
+  constructor({
+    message = "Access forbidden",
+    errors = [],
+    stack = null,
+  } = {}) {
+    super({ message, statusCode: 403, errors, stack });
+  }
+}
+
+export class NotFoundError extends AppError {
+  constructor({
+    message = "Resource not found",
+    errors = [],
+    stack = null,
+  } = {}) {
+    super({ message, statusCode: 404, errors, stack });
+  }
+}
+
+export class ConflictError extends AppError {
+  constructor({
+    message = "Resource conflict",
+    errors = [],
+    stack = null,
+  } = {}) {
+    super({ message, statusCode: 409, errors, stack });
+  }
+}
+
+export class ExpiredSessionError extends AppError {
+  constructor({
+    message = "Session or verification code has expired",
+    errors = [],
+    stack = null,
+  } = {}) {
+    super({ message, statusCode: 410, errors, stack });
+  }
+}
+
+export class ValidationError extends AppError {
+  constructor({
+    message = "Validation failed",
+    errors = [],
+    stack = null,
+  } = {}) {
+    super({ message, statusCode: 422, errors, stack });
+  }
+}
+
+export class MailServiceError extends AppError {
+  constructor({
+    message = "Failed to send email transmission",
+    errors = [],
+    stack = null,
+  } = {}) {
+    super({
+      message,
+      statusCode: 500,
+      errors: errors.length ? errors : ["Mail service delivery failure"],
+      stack,
+    });
+  }
+}
+
+export class MailTemplateError extends AppError {
+  constructor({
+    message = "Mail template infrastructure missing",
+    errors = [],
+    stack = null,
+  } = {}) {
+    super({
+      message,
+      statusCode: 500,
+      errors: errors.length ? errors : ["Failed to load email template layout"],
+      stack,
+    });
+  }
+}
+
+export const normalizeError = (err) => {
+  if (err instanceof AppError) {
+    return err;
+  }
+
+  const rawStack = err?.stack || null;
+
+  // 1. Mongoose Schema Validation Error
+  if (err.name === "ValidationError" && err.errors) {
+    const details = Object.values(err.errors).map((e) => e.message);
+    return new ValidationError({
+      message: "Database validation failed",
+      errors: details,
+      stack: rawStack,
+    });
+  }
+
+  if (err.name === "CastError") {
+    return new BadRequestError({
+      message: `Invalid value '${err.value}' for field '${err.path}'`,
+      errors: [`Field '${err.path}' expects a valid ${err.kind}`],
+      stack: rawStack,
+    });
+  }
+
+  if (err.code === 11000) {
+    const fields = Object.keys(err.keyValue || {});
+    const fieldName = fields.length ? fields.join(", ") : "Field";
+    return new ConflictError({
+      message: `${fieldName} already exists`,
+      errors: [`${fieldName} must be unique`],
+      stack: rawStack,
+    });
+  }
+
+  if (err.isJoi) {
+    const details = err.details?.map((d) => d.message) || [err.message];
+    return new ValidationError({
+      message: err.message || "Input validation failed",
+      errors: details,
+      stack: rawStack,
+    });
+  }
+
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    return new BadRequestError({
+      message: "Invalid JSON body payload",
+      errors: ["Malformed JSON syntax in request body"],
+      stack: rawStack,
+    });
+  }
+
+  if (err.name === "JsonWebTokenError") {
+    return new UnauthorizedError({
+      message: "Invalid authentication token",
+      errors: ["Provided JWT token signature is invalid"],
+      stack: rawStack,
+    });
+  }
+
+  if (err.name === "TokenExpiredError") {
+    return new UnauthorizedError({
+      message: "Token has expired",
+      errors: ["JWT token has expired, please log in again"],
+      stack: rawStack,
+    });
+  }
+
+  return new AppError({
+    message: err?.message || "An unexpected internal error occurred",
+    statusCode: 500,
+    errors: ["Internal server error"],
+    stack: rawStack,
+  });
+};
+
+export const handleReqErrors = (err, req, res, _next) => {
+  const error = normalizeError(err);
+
+  logger.error(
+    {
+      err: error,
+      code: error.name,
+      statusCode: error.statusCode,
+      origin: error.origin,
+      method: req.method,
+      path: req.originalUrl || req.path,
+      user: req.user?.id || req.body?.email,
+      details: error.errors,
+    },
+    `[${req.method}] ${req.originalUrl || req.path} -> ${error.statusCode} ${error.message}`,
+  );
+
+  return res.status(error.statusCode || 500).json({
+    success: false,
+    data: null,
+    error: {
+      code: error.name,
+      message: error.message,
+      details: error.errors,
+    },
+  });
+};
+```
+
+======================================================================
+FILE: src/middlewares/auth.middleware.js
+======================================================================
+```javascript
+import jwt from "jsonwebtoken";
+
+import { env } from "#config";
+import { UnauthorizedError } from "#errors";
+
+export class AuthMiddlewareClass {
+  authenticate = (req, res, next) => {
+    try {
+      // Retrieve token from cookies or Bearer Authorization header
+      const token =
+        req.cookies?.access_token ||
+        req.headers.authorization?.replace(/^Bearer\s+/, "");
+
+      if (!token) {
+        throw new UnauthorizedError({
+          message: "Authentication token is missing.",
+        });
+      }
+
+      const decoded = jwt.verify(token, env.JWT_SECRET);
+      req.user = decoded; // Attach { id, email } to req
+      next();
+    } catch (error) {
+      if (
+        error.name === "JsonWebTokenError" ||
+        error.name === "TokenExpiredError"
+      ) {
+        return next(
+          new UnauthorizedError({
+            message: "Invalid or expired session token.",
+          }),
+        );
+      }
+      next(error);
+    }
+  };
+}
+
+export const AuthMiddleware = new AuthMiddlewareClass();
 ```
 
 ======================================================================
 FILE: src/middlewares/index.js
 ======================================================================
 ```javascript
+export * from "./validate.middleware.js";
+export * from "./auth.middleware.js";
+```
 
+======================================================================
+FILE: src/middlewares/validate.middleware.js
+======================================================================
+```javascript
+import { ValidationError } from "#errors";
+
+export class ValidateMiddlewareClass {
+  // Validates incoming req against contract.reqSchema or raw Joi schema
+  validate = (contractOrSchema) => {
+    return (req, res, next) => {
+      // Extract Joi schema if a contract object was passed
+      const schema = contractOrSchema?.reqSchema || contractOrSchema;
+
+      if (!schema || typeof schema.validate !== "function") {
+        return next();
+      }
+
+      // Assemble request parts to validate against contract shape
+      const toValidate = {
+        body: req.body,
+        query: req.query,
+        params: req.params,
+        headers: req.headers,
+      };
+
+      const { error, value } = schema.validate(toValidate, {
+        abortEarly: false,
+        stripUnknown: true, // Automatically strip unmapped keys
+        allowUnknown: true, // Allow Express internal header/req fields
+      });
+
+      if (error) {
+        const errorDetails = error.details.map((detail) => detail.message);
+        return next(
+          new ValidationError({
+            message: "Request validation failed.",
+            errors: errorDetails,
+          }),
+        );
+      }
+
+      // Re-assign sanitized values back to Express request safely
+      if (value.body) req.body = value.body;
+
+      if (value.query && req.query) {
+        Object.keys(req.query).forEach((key) => delete req.query[key]);
+        Object.assign(req.query, value.query);
+      }
+
+      if (value.params && req.params) {
+        Object.keys(req.params).forEach((key) => delete req.params[key]);
+        Object.assign(req.params, value.params);
+      }
+
+      next();
+    };
+  };
+}
+
+export const ValidateMiddleware = new ValidateMiddlewareClass();
 ```
 
 ======================================================================
@@ -690,10 +3230,10 @@ FILE: src/models/index.js
 ======================================================================
 ```javascript
 import User from "./user.model.js";
-import List from "./list.model.js";
-import Task from "./task.model.js";
+// import List from "./list.model.js";
+// import Task from "./task.model.js";
 
-export { User, List, Task };
+export { User };
 ```
 
 ======================================================================
@@ -715,7 +3255,7 @@ FILE: src/models/user.model.js
 ======================================================================
 ```javascript
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
   {
@@ -740,12 +3280,12 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+// Updated pre-save hook (no 'next' parameter or call)
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
@@ -757,10 +3297,192 @@ export default User;
 ```
 
 ======================================================================
+FILE: src/routes/api.v1.router.js
+======================================================================
+```javascript
+import express from "express";
+
+import { testRouter } from "./test.router.js";
+import { authRouter } from "./auth.router.js";
+import { userRouter } from "./user.router.js";
+
+export const apiV1Router = express.Router();
+apiV1Router.use("/test", testRouter);
+apiV1Router.use("/auth", authRouter);
+apiV1Router.use("/user", userRouter);
+```
+
+======================================================================
+FILE: src/routes/auth.router.js
+======================================================================
+```javascript
+import express from "express";
+
+import { AuthController } from "#controllers";
+import { ValidateMiddleware } from "#middlewares";
+import {
+  initiateSignupContract,
+  verifySignupContract,
+  initiateLoginContract,
+  verifyLoginContract,
+  initiatePasswordResetContract,
+  completePasswordResetContract,
+} from "#contracts";
+
+export const authRouter = express.Router();
+
+// Registration Workflow
+authRouter.post(
+  "/signup/initiate",
+  ValidateMiddleware.validate(initiateSignupContract.reqSchema),
+  AuthController.initiateSignup,
+);
+
+authRouter.post(
+  "/signup/verify",
+  ValidateMiddleware.validate(verifySignupContract.reqSchema),
+  AuthController.verifySignup,
+);
+
+// Authentication Workflow
+authRouter.post(
+  "/login/initiate",
+  ValidateMiddleware.validate(initiateLoginContract.reqSchema),
+  AuthController.initiateLogin,
+);
+
+authRouter.post(
+  "/login/verify",
+  ValidateMiddleware.validate(verifyLoginContract.reqSchema),
+  AuthController.verifyLogin,
+);
+
+// Account Recovery Workflow
+authRouter.post(
+  "/forgot-password",
+  ValidateMiddleware.validate(initiatePasswordResetContract.reqSchema),
+  AuthController.initiatePasswordReset,
+);
+
+authRouter.post(
+  "/reset-password",
+  ValidateMiddleware.validate(completePasswordResetContract.reqSchema),
+  AuthController.completePasswordReset,
+);
+```
+
+======================================================================
 FILE: src/routes/index.js
 ======================================================================
 ```javascript
+export * from "./api.v1.router.js";
+```
 
+======================================================================
+FILE: src/routes/test.router.js
+======================================================================
+```javascript
+import express from "express";
+
+import { testController } from "#controllers";
+import { echoContract } from "#contracts";
+import { ValidateMiddleware } from "#middlewares";
+
+export const testRouter = express.Router();
+
+testRouter
+  .get("/ping", testController.ping)
+  .post("/echo", ValidateMiddleware.validate(echoContract), testController.echo)
+  .get("/async", testController.asyncTest);
+```
+
+======================================================================
+FILE: src/routes/user.router.js
+======================================================================
+```javascript
+import express from "express";
+
+import { UserController } from "#controllers";
+import { ValidateMiddleware, AuthMiddleware } from "#middlewares";
+import {
+  logoutContract,
+  initiatePasswordChangeContract,
+  confirmPasswordChangeContract,
+  initiateEmailChangeContract,
+  verifyExistingEmailOtpContract,
+  requestNewEmailVerificationContract,
+  confirmNewEmailUpdateContract,
+  initiateDeleteAccountContract,
+  confirmDeleteAccountContract,
+} from "#contracts";
+
+export const userRouter = express.Router();
+
+// Session & Account Offboarding
+userRouter.post(
+  "/logout",
+  AuthMiddleware.authenticate,
+  ValidateMiddleware.validate(logoutContract.reqSchema),
+  UserController.logout,
+);
+
+userRouter.post(
+  "/account/delete-initiate",
+  AuthMiddleware.authenticate,
+  ValidateMiddleware.validate(initiateDeleteAccountContract.reqSchema),
+  UserController.initiateDeleteAccount,
+);
+
+userRouter.delete(
+  "/account/delete-confirm",
+  AuthMiddleware.authenticate,
+  ValidateMiddleware.validate(confirmDeleteAccountContract.reqSchema),
+  UserController.confirmDeleteAccount,
+);
+
+// Password Change Flow
+userRouter.post(
+  "/account/password/change-initiate",
+  AuthMiddleware.authenticate,
+  ValidateMiddleware.validate(initiatePasswordChangeContract.reqSchema),
+  UserController.initiatePasswordChange,
+);
+
+userRouter.post(
+  "/account/password/change-confirm",
+  AuthMiddleware.authenticate,
+  ValidateMiddleware.validate(confirmPasswordChangeContract.reqSchema),
+  UserController.confirmPasswordChange,
+);
+
+// Email Change Multi-Step Flow
+userRouter.post(
+  "/account/email/change-initiate",
+  AuthMiddleware.authenticate,
+  ValidateMiddleware.validate(initiateEmailChangeContract.reqSchema),
+  UserController.initiateEmailChange,
+);
+
+userRouter.post(
+  "/account/email/verify-current-otp",
+  AuthMiddleware.authenticate,
+  ValidateMiddleware.validate(verifyExistingEmailOtpContract.reqSchema),
+  UserController.verifyExistingEmailOtp,
+);
+
+userRouter.post(
+  "/account/email/request-new-otp",
+  AuthMiddleware.authenticate,
+  ValidateMiddleware.validate(requestNewEmailVerificationContract.reqSchema),
+  UserController.requestNewEmailVerification,
+);
+
+userRouter.post(
+  "/account/email/confirm-update",
+  AuthMiddleware.authenticate,
+  ValidateMiddleware.validate(confirmNewEmailUpdateContract.reqSchema),
+  UserController.confirmNewEmailUpdate,
+);
 ```
 
 ======================================================================
@@ -774,25 +3496,804 @@ FILE: src/schemas/index.js
 FILE: src/server.js
 ======================================================================
 ```javascript
+// server.js
+import http from "node:http";
+import { app } from "#app";
+import { logger } from "#utils";
+import { connectMongoDB } from "#config";
 
+export const startServer = async ({ port, appName, appUrl, databaseUrl }) => {
+  const httpServer = http.createServer(app);
+  let isShuttingDown = false;
+
+  httpServer.on("listening", () => {
+    // logger.info({ service: "auth" }, "NODE_LOKI_TEST");
+    logger.info(
+      { appName, appUrl },
+      "🚀 %s server running at %s",
+      appName,
+      appUrl,
+    );
+  });
+
+  httpServer.on("error", (error) => {
+    if (error.syscall !== "listen") {
+      logger.error({ err: error }, "Server socket runtime error encountered");
+      return;
+    }
+
+    switch (error.code) {
+      case "EADDRINUSE":
+        logger.error({ port }, `Port ${port} is already in use`);
+        break;
+      case "EACCES":
+        logger.error({ port }, `Port ${port} requires elevated privileges`);
+        break;
+      default:
+        logger.error(
+          { err: error },
+          "Failed to start server due to system network error",
+        );
+    }
+    process.exit(1);
+  });
+
+  const shutdown = (signalOrError) => {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+
+    logger.warn(`\nReceived ${signalOrError}. Closing active connections...`);
+
+    const forceQuitTimeout = setTimeout(() => {
+      logger.error(
+        "Forced shutdown initiated: Active connections did not close in time.",
+      );
+      process.exit(1);
+    }, 10000);
+
+    httpServer.close((err) => {
+      clearTimeout(forceQuitTimeout);
+      if (err) {
+        logger.error({ err }, "Error occurred while closing HTTP server");
+        process.exit(1);
+      }
+      logger.info("HTTP server closed cleanly. Process exiting.");
+      process.exit(0);
+    });
+  };
+
+  process.on("uncaughtException", (error) => {
+    logger.error({ err: error }, `Uncaught Exception caught: ${error.message}`);
+    shutdown("uncaughtException");
+  });
+
+  process.on("unhandledRejection", (reason) => {
+    logger.error({ err: reason }, `Unhandled Promise Rejection caught`);
+    shutdown("unhandledRejection");
+  });
+
+  process.on("SIGINT", () => shutdown("SIGINT"));
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+  try {
+    await connectMongoDB(databaseUrl);
+
+    httpServer.listen(port, "0.0.0.0");
+  } catch (error) {
+    logger.error({ err: error }, "Failed to initialize server requirements");
+    process.exit(1);
+  }
+};
+```
+
+======================================================================
+FILE: src/services/auth.service.js
+======================================================================
+```javascript
+import jwt from "jsonwebtoken";
+
+import { env, redis } from "#config";
+import { User } from "#models";
+import { generateOTP } from "#utils";
+import { MailService } from "#services";
+import {
+  ConflictError,
+  ExpiredSessionError,
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
+} from "#errors";
+
+export class AuthServiceClass {
+  _jwtSecret = env.JWT_SECRET;
+  _otpTtl = 300; // 5 minutes
+  _cookieName = "access_token";
+
+  _getCookieOptions() {
+    return {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+  }
+
+  // ==========================================
+  // SIGNUP WORKFLOW
+  // ==========================================
+
+  async initiateSignup({ email, password }) {
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      throw new ConflictError({
+        message: "An account with this email already exists.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:signup:${email.toLowerCase()}`;
+    const payload = JSON.stringify({
+      email: email.toLowerCase(),
+      password,
+      otp,
+    });
+
+    await redis.setex(redisKey, this._otpTtl, payload);
+
+    await MailService.sendEmail(
+      email,
+      otp,
+      "Verify Your Registration",
+      "Thank you for registering. Please use the following verification code to finalize creating your account. Valid for 5 minutes.",
+    );
+
+    return { message: "Verification OTP dispatched to email." };
+  }
+
+  async verifySignup(email, submittedOtp) {
+    const redisKey = `pending:signup:${email.toLowerCase()}`;
+    const cachedData = await redis.get(redisKey);
+
+    if (!cachedData) {
+      throw new ExpiredSessionError({
+        message: "Verification session expired. Please register again.",
+      });
+    }
+
+    const { password, otp } = JSON.parse(cachedData);
+
+    if (otp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification code provided.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    const newUser = await User.create({
+      email: email.toLowerCase(),
+      password,
+    });
+
+    await redis.del(redisKey);
+
+    return newUser;
+  }
+
+  // ==========================================
+  // LOGIN WORKFLOW
+  // ==========================================
+
+  async initiateLogin(email, password) {
+    const user = await User.findOne({ email: email.toLowerCase() }).select(
+      "+password",
+    );
+
+    if (!user || !(await user.comparePassword(password))) {
+      throw new UnauthorizedError({
+        message: "Invalid email or password credentials.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:auth:${user._id}`;
+
+    await redis.setex(redisKey, this._otpTtl, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "2-Step Verification Login Request",
+      "A login attempt was initiated for your profile. Input this security code to verify your session identity.",
+    );
+
+    return { userId: user._id, message: "2FA checkpoint reached. Code sent." };
+  }
+
+  async verifyLogin(userId, submittedOtp, res) {
+    const redisKey = `pending:auth:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message: "Login verification session expired. Please re-authenticate.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid security verification code.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({
+        message: "Account profile records non-existent.",
+      });
+    }
+
+    const tokenPayload = { id: user._id, email: user.email };
+    const token = jwt.sign(tokenPayload, this._jwtSecret, { expiresIn: "7d" });
+
+    res.cookie(this._cookieName, token, this._getCookieOptions());
+
+    await redis.del(redisKey);
+
+    return { user, tokenName: this._cookieName };
+  }
+
+  // ==========================================
+  // FORGOT / RESET PASSWORD WORKFLOW
+  // ==========================================
+
+  async initiatePasswordReset(email) {
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return {
+        message: "If the account exists, a reset code has been dispatched.",
+      };
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:reset:${user._id}`;
+    await redis.setex(redisKey, this._otpTtl, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Password Reset Code Verification",
+      "We received a request to update your password credentials. Use this authorization code to proceed.",
+    );
+
+    return {
+      userId: user._id,
+      message: "If the account exists, a reset code has been dispatched.",
+    };
+  }
+
+  async completePasswordReset(userId, submittedOtp, newPassword) {
+    const redisKey = `pending:reset:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message: "Password authorization session expired.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid password modification code.",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    await redis.del(redisKey);
+    return {
+      success: true,
+      message: "Password successfully reset.",
+    };
+  }
+
+  // ==========================================
+  // SESSION UTILITIES
+  // ==========================================
+
+  async logout(res) {
+    res.clearCookie(this._cookieName, {
+      ...this._getCookieOptions(),
+      maxAge: 0,
+    });
+    return { success: true };
+  }
+}
+
+export const AuthService = new AuthServiceClass();
 ```
 
 ======================================================================
 FILE: src/services/index.js
 ======================================================================
 ```javascript
+export * from "./auth.service.js";
+export * from "./mail.service.js";
+export * from "./user.service.js";
+```
 
+======================================================================
+FILE: src/services/mail.service.js
+======================================================================
+```javascript
+import nodemailer from "nodemailer";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { env } from "#config";
+import { logger } from "#utils";
+import { MailServiceError, MailTemplateError } from "#errors";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export class MailServiceClass {
+  _transporter = nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_SECURE,
+    auth: {
+      user: env.SMTP_USER,
+      pass: env.SMTP_PASS,
+    },
+  });
+
+  _fromAddress = env.SMTP_FROM;
+  _templatePath = path.join(__dirname, "../templates/email-template.html");
+  _cachedHtml = null;
+
+  _loadTemplate = async () => {
+    if (this._cachedHtml) return this._cachedHtml;
+    try {
+      this._cachedHtml = await fs.readFile(this._templatePath, "utf8");
+      return this._cachedHtml;
+    } catch (error) {
+      throw new MailTemplateError({
+        message: "Critical: Mail infrastructure layout missing.",
+        errors: [error.message],
+      });
+    }
+  };
+
+  sendEmail = async (to, otp, subject, purposeText) => {
+    const rawTemplate = await this._loadTemplate();
+
+    const personalizedHtml = rawTemplate
+      .replace("{{OTP}}", otp)
+      .replace("{{PURPOSE_TEXT}}", purposeText);
+
+    try {
+      const deliveryReceipt = await this._transporter.sendMail({
+        from: this._fromAddress,
+        to,
+        subject,
+        html: personalizedHtml,
+      });
+
+      logger.info(
+        `✅ Outbound email systematically delivered to: ${to} [ID: ${deliveryReceipt.messageId}]`,
+      );
+
+      return true;
+    } catch (error) {
+      throw new MailServiceError({
+        message:
+          "Unable to complete security authentication message transmission.",
+        errors: [error.message],
+      });
+    }
+  };
+}
+
+export const MailService = new MailServiceClass();
+```
+
+======================================================================
+FILE: src/services/user.service.js
+======================================================================
+```javascript
+import crypto from "node:crypto";
+
+import { redis } from "#config";
+import { User } from "#models";
+import { generateOTP } from "#utils";
+import { AuthService, MailService } from "#services";
+import {
+  ConflictError,
+  ExpiredSessionError,
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
+} from "#errors";
+
+export class UserServiceClass {
+  _otpTtl = 300; // 5 minutes
+
+  // ==========================================
+  // PASSWORD CHANGE WORKFLOW
+  // ==========================================
+
+  async initiatePasswordChange(userId, currentPassword) {
+    const user = await User.findById(userId).select("+password");
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    const isPasswordValid = await user.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      throw new UnauthorizedError({
+        message: "Invalid current password provided.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:password-change:${userId}`;
+    await redis.setex(redisKey, this._otpTtl, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Authorize Password Change Request",
+      "A request was made to change your password. Valid for 5 minutes.",
+    );
+
+    return {
+      message:
+        "Security verification code sent to your registered email address.",
+    };
+  }
+
+  async confirmPasswordChange(userId, submittedOtp, newPassword) {
+    const redisKey = `pending:password-change:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message: "Password change session expired. Please request a new code.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification code provided.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    await redis.del(redisKey);
+
+    return { message: "Password updated successfully." };
+  }
+
+  // ==========================================
+  // EMAIL CHANGE WORKFLOW
+  // ==========================================
+
+  async initiateEmailChange(userId, currentPassword) {
+    const user = await User.findById(userId).select("+password");
+    if (!user) {
+      throw new NotFoundError({ message: "User profile record missing." });
+    }
+
+    const isPasswordValid = await user.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      throw new UnauthorizedError({
+        message: "Invalid current password provided.",
+      });
+    }
+
+    const otp = generateOTP();
+    const redisKey = `pending:email-change:step1:${userId}`;
+    await redis.setex(redisKey, this._otpTtl, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Authorize Email Change Request",
+      "Use this code to verify ownership of your current email address.",
+    );
+
+    return {
+      message:
+        "Security authorization code sent to your current email address.",
+    };
+  }
+
+  async verifyExistingEmailOtp(userId, submittedOtp) {
+    const redisKey = `pending:email-change:step1:${userId}`;
+    const cachedOtp = await redis.get(redisKey);
+
+    if (!cachedOtp) {
+      throw new ExpiredSessionError({
+        message:
+          "Email verification session expired. Please restart the process.",
+      });
+    }
+
+    if (cachedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification code provided.",
+        errors: ["OTP mismatch"],
+      });
+    }
+
+    await redis.del(redisKey);
+
+    const emailChangeToken = crypto.randomBytes(32).toString("hex");
+    const tokenKey = `pending:email-change:authorized:${userId}`;
+    await redis.setex(tokenKey, 600, emailChangeToken);
+
+    return { emailChangeToken };
+  }
+
+  async requestNewEmailVerification(userId, emailChangeToken, newEmail) {
+    const tokenKey = `pending:email-change:authorized:${userId}`;
+    const storedToken = await redis.get(tokenKey);
+
+    if (!storedToken || storedToken !== emailChangeToken) {
+      throw new UnauthorizedError({
+        message: "Unauthorized or expired email modification session.",
+      });
+    }
+
+    const existingUser = await User.findOne({ email: newEmail.toLowerCase() });
+    if (existingUser) {
+      throw new ConflictError({
+        message: "An account with this target email address already exists.",
+      });
+    }
+
+    const newOtp = generateOTP();
+    const redisKey = `pending:email-change:step2:${userId}`;
+    const payload = JSON.stringify({
+      newEmail: newEmail.toLowerCase(),
+      otp: newOtp,
+    });
+
+    await redis.setex(redisKey, this._otpTtl, payload);
+
+    await MailService.sendEmail(
+      newEmail,
+      newOtp,
+      "Verify Your New Email Address",
+      "Please use this code to confirm and link your new email address.",
+    );
+
+    return { message: "Verification code sent to your new email address." };
+  }
+
+  async confirmNewEmailUpdate(
+    userId,
+    emailChangeToken,
+    newEmail,
+    submittedOtp,
+  ) {
+    const tokenKey = `pending:email-change:authorized:${userId}`;
+    const storedToken = await redis.get(tokenKey);
+
+    if (!storedToken || storedToken !== emailChangeToken) {
+      throw new UnauthorizedError({
+        message: "Unauthorized or expired email modification session.",
+      });
+    }
+
+    const step2Key = `pending:email-change:step2:${userId}`;
+    const cachedData = await redis.get(step2Key);
+
+    if (!cachedData) {
+      throw new ExpiredSessionError({
+        message:
+          "New email verification session expired. Please request a new code.",
+      });
+    }
+
+    const { newEmail: targetEmail, otp: storedOtp } = JSON.parse(cachedData);
+
+    if (targetEmail !== newEmail.toLowerCase() || storedOtp !== submittedOtp) {
+      throw new ValidationError({
+        message: "Invalid verification details or target email mismatch.",
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { email: newEmail.toLowerCase() },
+      { new: true },
+    );
+
+    await redis.del([tokenKey, step2Key]);
+
+    return updatedUser;
+  }
+
+  // ==========================================
+  // ACCOUNT OFFBOARDING
+  // ==========================================
+
+  // Step 1: Initiate Deletion Flow
+  async initiateDeleteAccount(userId, currentPassword) {
+    const user = await User.findById(userId).select("+password");
+    if (!user) {
+      throw new NotFoundError({ message: "Target user non-existent." });
+    }
+
+    const isPasswordValid = await user.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      throw new UnauthorizedError({ message: "Invalid current password." });
+    }
+
+    const otp = generateOTP();
+
+    const redisKey = `otp:delete_account:${userId}`;
+    await redis.setex(redisKey, this._otpTtl, otp);
+
+    await MailService.sendEmail(
+      user.email,
+      otp,
+      "Authorize Account Deletion Request",
+      "A request was made to delete your account. Valid for 5 minutes.",
+    );
+
+    return { success: true };
+  }
+
+  // Step 2: Confirm Deletion Flow
+  async confirmDeleteAccount(userId, otp, res) {
+    const redisKey = `otp:delete_account:${userId}`;
+    const storedOtp = await redis.get(redisKey);
+
+    if (!storedOtp || storedOtp !== otp) {
+      throw new ValidationError({ message: "Invalid or expired OTP." });
+    }
+
+    await redis.del(redisKey);
+
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      throw new NotFoundError({ message: "Target user non-existent." });
+    }
+
+    await AuthService.logout(res);
+
+    return { success: true };
+  }
+}
+
+export const UserService = new UserServiceClass();
+```
+
+======================================================================
+FILE: src/templates/email-template.html
+======================================================================
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Marketplace</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding: 5% 2%;">
+    <tr>
+      <td align="center">
+        <!--[if mso]>
+        <table width="600" cellpadding="0" cellspacing="0" style="background: #111827; border-radius: 12px;">
+        <tr><td>
+        <![endif]-->
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #111827; border-radius: 12px; overflow: hidden; box-shadow: 0 4vw 15vw rgba(0,0,0,0.5);">
+
+          <!-- Premium Dark Gradient Header -->
+          <tr>
+            <td align="center" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%); color: #ffffff; padding: 6% 4%; border-bottom: 1px solid #334155;">
+              <h1 style="margin: 0; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; color: #ffffff;">Global Marketplace</h1>
+              <p style="margin: 1.5% 0 0 0; font-size: 1rem; opacity: 0.85; font-weight: 400; color: #93c5fd;">Secure Account Verification</p>
+            </td>
+          </tr>
+
+          <!-- Main Body Content -->
+          <tr>
+            <td style="padding: 8% 6%;">
+              <h2 style="margin-top: 0; margin-bottom: 4%; color: #f8fafc; font-size: 1.35rem; font-weight: 600;">Hello,</h2>
+
+              <p style="color: #cbd5e1; line-height: 1.6; font-size: 1rem; margin-bottom: 4%;">
+                {{PURPOSE_TEXT}}
+              </p>
+
+              <p style="color: #cbd5e1; line-height: 1.6; font-size: 1rem; margin-bottom: 6%;">
+                Your One-Time Password (OTP) is:
+              </p>
+
+              <!-- Neon Accent Dark OTP Container -->
+              <div style="margin: 6% auto; width: fit-content; background: #1e293b; border: 2px dashed #3b82f6; border-radius: 8px; padding: 4% 8%; font-size: 2rem; font-weight: 700; letter-spacing: 0.25em; color: #60a5fa; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 2vw rgba(59, 130, 246, 0.15);">
+                {{OTP}}
+              </div>
+
+              <p style="color: #94a3b8; line-height: 1.6; font-size: 0.95rem; margin-bottom: 3%;">
+                This OTP is valid for <strong style="color: #f8fafc;">5 minutes</strong>.
+              </p>
+
+              <p style="color: #94a3b8; line-height: 1.6; font-size: 0.95rem; margin-bottom: 0;">
+                If you didn't request this verification, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Muted Dark Footer -->
+          <tr>
+            <td align="center" style="background: #0f172a; padding: 4% 6%; color: #64748b; font-size: 0.8rem; border-top: 1px solid #1e293b;">
+              <p style="margin: 0 0 1% 0;">&copy; 2026 Global Marketplace</p>
+              <p style="margin: 0;">This is an automated email. Please do not reply.</p>
+            </td>
+          </tr>
+
+        </table>
+        <!--[if mso]>
+        </td></tr>
+        </table>
+        <![endif]-->
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+```
+
+======================================================================
+FILE: src/utils/generateOtp.util.js
+======================================================================
+```javascript
+import crypto from "node:crypto";
+
+export const generateOTP = ({ length = 6, asString = true } = {}) => {
+  if (!Number.isInteger(length) || length < 4 || length > 10) {
+    throw new RangeError("OTP length must be an integer between 4 and 10.");
+  }
+
+  const min = 10 ** (length - 1);
+  const max = 10 ** length;
+
+  const otp = crypto.randomInt(min, max);
+
+  return asString ? String(otp) : otp;
+};
 ```
 
 ======================================================================
 FILE: src/utils/index.js
 ======================================================================
 ```javascript
-export * from "./logger.js";
+export * from "./logger.util.js";
+export * from "./generateOtp.util.js";
 ```
 
 ======================================================================
-FILE: src/utils/logger.js
+FILE: src/utils/logger.util.js
 ======================================================================
 ```javascript
 import pino from "pino";
@@ -865,285 +4366,65 @@ FILE: src/validators/index.js
 ```
 
 ======================================================================
-FILE: scripts/pack-context.js
+FILE: tests/integration/test.router.test.js
 ======================================================================
 ```javascript
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { describe, it, expect } from "vitest"; // 👈 Vitest provides the test runner structure
+import request from "supertest";
+import { app } from "#app";
+import { echoContract, pingContract } from "#contracts";
 
-// Get directory name in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+describe("GET /api/v1/test/ping", () => {
+  it("should conform strictly to pingContract.resSchema", async () => {
+    const response = await request(app).get("/api/v1/test/ping").expect(200);
 
-// Save output directly inside the scripts/ folder
-const OUTPUT_FILE = path.join(__dirname, "project_context.txt");
-
-// Project root directory (one level up from scripts/)
-const ROOT_DIR = path.resolve(__dirname, "..");
-
-// Directories and top-level files to include
-const TARGET_DIRS = ["src", "scripts", "dummy", "tests", ".github"];
-const TARGET_ROOT_FILES = [
-  "index.js",
-  "package.json",
-  "README.md",
-  "Dockerfile",
-  "Dockerfile.dev",
-  "compose.yml",
-  ".env.example",
-  ".gitignore",
-  ".dockerignore",
-];
-
-// Supported text extensions
-const TEXT_EXTENSIONS = new Set([
-  ".js",
-  ".jsx",
-  ".ts",
-  ".tsx",
-  ".css",
-  ".scss",
-  ".json",
-  ".html",
-  ".svg",
-  ".md",
-  ".yml",
-  ".yaml",
-  ".env",
-  ".example",
-  ".sh",
-  ".txt",
-]);
-
-const IGNORE_FILES = new Set([
-  ".DS_Store",
-  "thumbs.db",
-  "package-lock.json",
-  "project_context.txt",
-]);
-
-function getLanguageTag(ext, fileName = "") {
-  if (fileName.toLowerCase().includes("dockerfile")) return "dockerfile";
-
-  const map = {
-    ".js": "javascript",
-    ".jsx": "jsx",
-    ".ts": "typescript",
-    ".tsx": "tsx",
-    ".css": "css",
-    ".scss": "scss",
-    ".json": "json",
-    ".html": "html",
-    ".svg": "xml",
-    ".md": "markdown",
-    ".yml": "yaml",
-    ".yaml": "yaml",
-    ".sh": "bash",
-    ".env": "dotenv",
-    ".txt": "text",
-  };
-  return map[ext] || "";
-}
-
-function buildTree(dirPath, prefix = "") {
-  let tree = "";
-  if (!fs.existsSync(dirPath)) return tree;
-
-  const items = fs
-    .readdirSync(dirPath)
-    .filter((item) => !IGNORE_FILES.has(item))
-    .sort();
-
-  items.forEach((item, index) => {
-    const isLast = index === items.length - 1;
-    const connector = isLast ? "└── " : "├── ";
-    const fullPath = path.join(dirPath, item);
-    const isDir = fs.statSync(fullPath).isDirectory();
-
-    tree += `${prefix}${connector}${item}\n`;
-
-    if (isDir) {
-      const extension = isLast ? "    " : "│   ";
-      tree += buildTree(fullPath, prefix + extension);
-    }
+    const { error } = pingContract.resSchema.validate(response.body);
+    expect(error).toBeUndefined();
   });
+});
 
-  return tree;
-}
+describe("POST /api/v1/test/echo", () => {
+  it("should conform strictly to echoContract.resSchema when sent valid JSON", async () => {
+    const payload = { task: "Test contracts" };
 
-function getFiles(dirPath) {
-  let results = [];
-  if (!fs.existsSync(dirPath)) return results;
+    const response = await request(app)
+      .post("/api/v1/test/echo")
+      .send(payload)
+      .expect(200);
 
-  const list = fs.readdirSync(dirPath);
-  list.forEach((file) => {
-    if (IGNORE_FILES.has(file)) return;
-
-    const fullPath = path.join(dirPath, file);
-    const stat = fs.statSync(fullPath);
-
-    if (stat && stat.isDirectory()) {
-      results = results.concat(getFiles(fullPath));
-    } else {
-      const ext = path.extname(file).toLowerCase();
-      if (
-        TEXT_EXTENSIONS.has(ext) ||
-        file.toLowerCase().includes("dockerfile")
-      ) {
-        results.push(fullPath);
-      }
-    }
+    const { error } = echoContract.resSchema.validate(response.body);
+    expect(error).toBeUndefined();
   });
-  return results;
-}
-
-function packContext() {
-  let output =
-    "======================================================================\n";
-  output += "PROJECT ARCHITECTURE TREE\n";
-  output +=
-    "======================================================================\n\n";
-
-  // Build root files & directory tree view
-  TARGET_ROOT_FILES.forEach((file) => {
-    const filePath = path.join(ROOT_DIR, file);
-    if (fs.existsSync(filePath)) {
-      output += `${file}\n`;
-    }
-  });
-
-  TARGET_DIRS.forEach((dir) => {
-    const dirPath = path.join(ROOT_DIR, dir);
-    if (fs.existsSync(dirPath)) {
-      output += `${dir}/\n`;
-      output += buildTree(dirPath);
-      output += "\n";
-    }
-  });
-
-  let fileCount = 0;
-
-  // Gather file paths to process
-  let allFiles = [];
-
-  // Add individual root files
-  TARGET_ROOT_FILES.forEach((file) => {
-    const filePath = path.join(ROOT_DIR, file);
-    if (fs.existsSync(filePath)) allFiles.push(filePath);
-  });
-
-  // Add files from target directories
-  TARGET_DIRS.forEach((dir) => {
-    const dirPath = path.join(ROOT_DIR, dir);
-    allFiles = allFiles.concat(getFiles(dirPath));
-  });
-
-  // Pack file contents
-  allFiles.forEach((filePath) => {
-    const relativePath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
-    const ext = path.extname(filePath).toLowerCase();
-    const lang = getLanguageTag(ext, path.basename(filePath));
-
-    try {
-      const content = fs.readFileSync(filePath, "utf-8");
-      output +=
-        "======================================================================\n";
-      output += `FILE: ${relativePath}\n`;
-      output +=
-        "======================================================================\n";
-      output += `\`\`\`${lang}\n`;
-      output += content.endsWith("\n") ? content : content + "\n";
-      output += "```\n\n";
-      fileCount++;
-    } catch (err) {
-      output += `/* Error reading file ${relativePath}: ${err.message} */\n\n`;
-    }
-  });
-
-  fs.writeFileSync(OUTPUT_FILE, output, "utf-8");
-  console.log(`Done! Packed ${fileCount} files into ${OUTPUT_FILE}`);
-}
-
-packContext();
+});
 ```
 
 ======================================================================
-FILE: dummy/idea.txt
+FILE: tests/unit/test.controller.test.js
 ======================================================================
-```text
---- db-design ---
-collections / entities : 
-1. users 
-2. lists 
-3. tasks
+```javascript
+import { describe, it, expect, vi } from "vitest";
+import { testController } from "#controllers";
 
-1. user : 
-_id
-email
-password
+describe("testController Unit Tests", () => {
+  it("ping() should return status success and 200 JSON response", () => {
+    // 1. Create mock req and res objects
+    const req = {};
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
 
-2. list :
-_id
-list_name
+    // 2. Call the controller function directly
+    testController.ping(req, res);
 
-3. task : 
-_id
-task_name 
-task_status
-
---- features ---
-
-```
-
-======================================================================
-FILE: .github/workflows/deploy.yml
-======================================================================
-```yaml
-name: Deployment Pipeline
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run test suite
-        run: npm test --if-present
-
-      - name: Verify build output
-        run: echo "Code validated on main branch. Ready for deployment steps."
-```
-
-======================================================================
-FILE: .github/workflows/test.yml
-======================================================================
-```yaml
-name: Test Suite Placeholder
-
-on:
-  workflow_dispatch:
-
-jobs:
-  placeholder:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Test workflow placeholder"
+    // 3. Assert mock function invocations
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      status: "success",
+      message: "🏓 pong!",
+      timestamp: expect.any(String),
+    });
+  });
+});
 ```
 

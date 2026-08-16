@@ -3,3 +3,4 @@ node_modules/
 .env.local
 mongo/
 *.keyfile
+project_context.txt
