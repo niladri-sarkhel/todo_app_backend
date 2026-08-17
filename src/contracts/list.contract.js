@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectIdSchema, baseSuccessResSchema } from "./common.contract.js";
+import { objectIdSchema, baseSuccessResSchema } from "#contracts";
 
 const hexColorPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 
