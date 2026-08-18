@@ -5,6 +5,7 @@ import cors from "cors"; // 👈 Import here
 import { env } from "#config";
 import { apiV1Router } from "#routes";
 import { handleReqErrors, NotFoundError } from "#errors";
+import { requestLogger } from "#utils";
 
 export const app = express();
 app
@@ -12,6 +13,7 @@ app
   .use(express.urlencoded({ extended: true }))
   .use(cookieParser())
   .use(cors())
+  .use(requestLogger)
   .use(env.API_PREFIX, apiV1Router)
   .use((req, _res, next) => {
     next(

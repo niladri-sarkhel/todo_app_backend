@@ -1,6 +1,7 @@
 import express from "express";
 
 import { ListController } from "#controllers";
+
 import { ValidateMiddleware, AuthMiddleware } from "#middlewares";
 import {
   createListContract,

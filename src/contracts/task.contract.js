@@ -47,7 +47,7 @@ export const getTasksContract = Object.freeze({
 export const updateTaskContract = Object.freeze({
   reqSchema: Joi.object({
     params: Joi.object({
-      id: objectIdSchema,
+      taskId: objectIdSchema,
     }).required(),
     body: Joi.object({
       title: Joi.string().trim().max(50).optional(),
@@ -91,7 +91,7 @@ export const reorderTasksContract = Object.freeze({
 export const deleteTaskContract = Object.freeze({
   reqSchema: Joi.object({
     params: Joi.object({
-      id: objectIdSchema,
+      taskId: objectIdSchema,
     }).required(),
   }),
   resSchema: baseSuccessResSchema(

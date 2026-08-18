@@ -235,3 +235,61 @@ This project is primarily intended as a practice project for learning:
 ## License
 
 This project is for learning and practice purposes.
+
+-------------------------------------------
+
+**List Endpoints (`/api/v1/lists`)**
+
+* **`POST /api/v1/lists`** — Create a new custom list (`title`, `color`).
+* **`GET /api/v1/lists`** — Retrieve all non-archived lists owned by the logged-in user (with query param `?archived=true` for archived lists).
+* **`GET /api/v1/lists/:id`** — Retrieve details for a single list.
+* **`PATCH /api/v1/lists/:id`** — Update list attributes (`title`, `color`, `isArchived`).
+* **`DELETE /api/v1/lists/:id`** — Delete a list and cascade-delete all nested tasks.
+
+---
+
+**Task Endpoints (`/api/v1/tasks` & `/api/v1/lists/:listId/tasks`)**
+
+| Method | Route | Description |
+| --- | --- | --- |
+| **POST** | `/api/v1/lists/:listId/tasks` | Create a task inside a specific list |
+| **GET** | `/api/v1/lists/:listId/tasks` | Get all tasks for a list (sorted by `order`) |
+| **PATCH** | `/api/v1/tasks/:id` | Update task details (`title`, `description`, `isCompleted`, `dueDate`) |
+| **PATCH** | `/api/v1/lists/:listId/tasks/reorder` | Bulk update task positions after drag-and-drop sorting |
+| **DELETE** | `/api/v1/tasks/:id` | Delete a single task |
+
+---
+
+**Key Business Logic Behaviors**
+
+* **List Ownership Verification:** Since `Task` does not store `user`, every task endpoint must check if the parent `list` belongs to `req.user._id` before reading or modifying tasks.
+* **Auto-Incrementing `order`:** When creating a task inside a list, default its `order` value to `highestExistingOrder + 1`.
+* **Cascading Delete:** Deleting a list invokes `Task.deleteMany({ list: listId })` so no orphan tasks remain in the database.
+
+Which section should we implement first: the **List controller/routes** or the **Task controller/routes**?
+
+POST /api/v1/lists
+GET /api/v1/lists
+GET /api/v1/lists/:id
+PATCH /api/v1/lists/:id
+DELETE /api/v1/lists/:id
+
+POST /api/v1/lists/:id/tasks
+GET /api/v1/lists/:id/tasks
+PATCH /api/v1/tasks/:id
+PATCH /api/v1/lists/:id/tasks/reorder
+DELETE /api/v1/tasks/:id
+
+/api/v1
+    /lists 
+        / GET
+        / POST
+            /:id GET
+            /:id PATCH
+            /:id DELETE
+                /tasks GET   
+                /tasks POST   
+                    /reorder PATCH
+    /tasks
+        /:id PATCH
+        /:id DELETE

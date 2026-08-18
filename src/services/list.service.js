@@ -1,4 +1,4 @@
-import { List } from "#models";
+import { List, Task } from "#models";
 import { NotFoundError, ConflictError } from "#errors";
 
 export class ListServiceClass {
@@ -71,6 +71,8 @@ export class ListServiceClass {
     if (!list) {
       throw new NotFoundError({ message: "List not found." });
     }
+
+    await Task.deleteMany({ list: listId });
 
     return { message: "List deleted successfully." };
   }
